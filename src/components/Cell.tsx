@@ -1,13 +1,17 @@
-import type { Component } from 'solid-js'
+import { Component, mergeProps } from 'solid-js'
 import { Player, PlayerColor } from '../models/player'
+import { Position } from '../models/position'
 
 interface CellProps {
   isEligible: boolean
   onClick: () => void
-  player?: Player
+  players: Player[]
+  position: Position
 }
 
-const Cell: Component<CellProps> = ({ isEligible, onClick, player }) => {
+const Cell: Component<CellProps> = (oldProps) => {
+  const props = mergeProps(oldProps)
+
   function getColor(playerColor: PlayerColor): string {
     switch (playerColor) {
       case PlayerColor.BLACK:
@@ -22,7 +26,7 @@ const Cell: Component<CellProps> = ({ isEligible, onClick, player }) => {
   }
 
   function hoverCss(): string {
-    if (isEligible) {
+    if (props.isEligible) {
       return 'hover:bg-stone-200'
     }
     return ''
@@ -33,16 +37,25 @@ const Cell: Component<CellProps> = ({ isEligible, onClick, player }) => {
   }
 
   function wrappedOnClick() {
-    if (isEligible) {
-      onClick()
+    if (props.isEligible) {
+      props.onClick()
     }
+  }
+
+  function getPlayerOnCell(): Player | undefined {
+    return props.players
+      .filter((p) => p.position !== undefined)
+      .find(
+        (p) =>
+          p.position.x === props.position.x && p.position.y === props.position.y
+      )
   }
 
   return (
     <div class={getCss()} onClick={wrappedOnClick}>
-      {isEligible && <div class="w-1 h-1 rounded bg-gray-500" />}
-      {!isEligible && player && (
-        <div class={`w-2 h-2 rounded ${getColor(player.color)}`} />
+      {props.isEligible && <div class="w-1 h-1 rounded bg-gray-500" />}
+      {!props.isEligible && getPlayerOnCell() && (
+        <div class={`w-2 h-2 rounded ${getColor(getPlayerOnCell().color)}`} />
       )}
     </div>
   )
