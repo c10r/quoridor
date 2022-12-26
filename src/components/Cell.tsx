@@ -6,6 +6,7 @@ interface CellProps {
   isEligible: boolean
   isGameOver: boolean
   onClick: () => void
+  onMouseEnter: () => void
   players: Player[]
   position: Position
 }
@@ -53,7 +54,11 @@ const Cell: Component<CellProps> = (oldProps) => {
   }
 
   return (
-    <div class={getCss()} onClick={wrappedOnClick}>
+    <div
+      class={getCss()}
+      onClick={wrappedOnClick}
+      onMouseEnter={props.onMouseEnter}
+    >
       {!props.isGameOver && props.isEligible && (
         <div class="w-1 h-1 rounded bg-gray-500" />
       )}
