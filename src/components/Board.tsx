@@ -3,6 +3,7 @@ import { Player } from '../models/player'
 import Cell from './Cell'
 
 interface BoardProps {
+  gameOver: () => void
   playersProp: Player[]
 }
 
@@ -16,7 +17,7 @@ interface Position {
   y: number
 }
 
-const Board: Component<BoardProps> = ({ playersProp }) => {
+const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
   const [players, setPlayers] = createSignal(playersProp)
   const [turn, setTurn] = createSignal(0)
   const [phase, setPhase] = createSignal(GamePhase.CHOOSE_STARTING_POSITION)
@@ -28,6 +29,39 @@ const Board: Component<BoardProps> = ({ playersProp }) => {
         return new Array(9).fill(row === 0)
       })
   )
+  const [isGameOver, setIsGameOver] = createSignal(false)
+
+  function rematch() {
+    setPlayers(playersProp)
+    setTurn(0)
+    setPhase(GamePhase.CHOOSE_STARTING_POSITION)
+    setEligibility(
+      new Array(9)
+        // If you don't call fill, .map doesn't do anything
+        .fill(null)
+        .map((element, row) => {
+          return new Array(9).fill(row === 0)
+        })
+    )
+    setIsGameOver(false)
+  }
+
+  function calculateGameOver(): boolean {
+    const playerTurn = turn() % players().length
+    if (playerTurn === 0) {
+      return players()[0].position.x === 8
+    }
+    if (playerTurn === 1) {
+      return players()[1].position.x === 0
+    }
+    if (playerTurn === 2) {
+      return players()[2].position.y === 8
+    }
+    if (playerTurn === 3) {
+      return players()[3].position.y === 0
+    }
+    return false
+  }
 
   function updateEligibility() {
     const newEligibility: boolean[][] = JSON.parse(
@@ -59,33 +93,37 @@ const Board: Component<BoardProps> = ({ playersProp }) => {
     } else {
       // Set everything except for the 4 squares next to the player to false
       // We don't count diagonals
+      // Then exclude the current positions of all players
       for (const row of [...Array(9).keys()]) {
         for (const column of [...Array(9).keys()]) {
           newEligibility[row][column] = false
         }
       }
+      const playerPositionsSet = new Set(
+        players().map((player) => `${player.position.x}${player.position.y}`)
+      )
       const { x, y } = players()[turn() % players().length].position!
       // Above
-      if (x > 0) {
+      if (x > 0 && !playerPositionsSet.has(`${x - 1}${y}`)) {
         newEligibility[x - 1][y] = true
       }
       // Below
-      if (x < 8) {
+      if (x < 8 && !playerPositionsSet.has(`${x + 1}${y}`)) {
         newEligibility[x + 1][y] = true
       }
       // Left
-      if (y > 0) {
+      if (y > 0 && !playerPositionsSet.has(`${x}${y - 1}`)) {
         newEligibility[x][y - 1] = true
       }
       // Right
-      if (y < 8) {
+      if (y < 8 && !playerPositionsSet.has(`${x}${y + 1}`)) {
         newEligibility[x][y + 1] = true
       }
     }
     setEligibility(newEligibility)
   }
 
-  function setStartingPosition(position: Position) {
+  function setPlayerPosition(position: Position) {
     const playerNumber = turn() % players().length
     const newPlayers = players()
     newPlayers[playerNumber].position = position
@@ -93,12 +131,15 @@ const Board: Component<BoardProps> = ({ playersProp }) => {
   }
 
   function onClickCell(position: Position) {
+    setPlayerPosition(position)
+    if (calculateGameOver()) {
+      setIsGameOver(true)
+      return
+    }
     if (phase() === GamePhase.CHOOSE_STARTING_POSITION) {
-      setStartingPosition(position)
       if (turn() === players().length - 1) {
         setPhase(GamePhase.PLAYING)
       }
-    } else {
     }
     setTurn(turn() + 1)
     updateEligibility()
@@ -106,12 +147,31 @@ const Board: Component<BoardProps> = ({ playersProp }) => {
 
   return (
     <div class="flex flex-col items-center justify-around h-screen w-screen">
-      <div>
-        {players()[turn() % players().length].name}'s turn{': '}
-        {phase() === GamePhase.CHOOSE_STARTING_POSITION
-          ? 'Choose a starting position'
-          : 'Either move your player or place a wall'}
-      </div>
+      {isGameOver() && (
+        <div class="flex flex-col">
+          <h1>{players()[turn() % players().length].name} wins!</h1>
+          <button
+            class="max-w-max bg-red-500 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded"
+            onClick={gameOver}
+          >
+            Return to Lobby
+          </button>
+          <button
+            class="max-w-max bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+            onClick={rematch}
+          >
+            Rematch
+          </button>
+        </div>
+      )}
+      {!isGameOver() && (
+        <div>
+          {players()[turn() % players().length].name}'s turn{': '}
+          {phase() === GamePhase.CHOOSE_STARTING_POSITION
+            ? 'Choose a starting position'
+            : 'Either move your player or place a wall'}
+        </div>
+      )}
       <div class="flex flex-col gap-y-2">
         <For each={new Array(9)}>
           {(_unused, row) => {
@@ -122,6 +182,7 @@ const Board: Component<BoardProps> = ({ playersProp }) => {
                     return (
                       <Cell
                         isEligible={eligibility()[row()][col()]}
+                        isGameOver={isGameOver()}
                         onClick={() => onClickCell({ x: row(), y: col() })}
                         players={players()}
                         position={{ x: row(), y: col() }}

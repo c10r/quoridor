@@ -11,4 +11,5 @@ export interface Player {
   name: string
   color: PlayerColor
   position?: Position
+  walls: number
 }

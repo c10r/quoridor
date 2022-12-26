@@ -5,6 +5,8 @@ interface ConfigureLocalPlayersProps {
   startGame: (players: Player[]) => void
 }
 
+const TOTAL_WALLS = 20
+
 const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
   startGame,
 }) => {
@@ -13,10 +15,12 @@ const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
     {
       name: '',
       color: PlayerColor.BLACK,
+      walls: Math.floor(TOTAL_WALLS / 2),
     },
     {
       name: '',
       color: PlayerColor.BROWN,
+      walls: Math.floor(TOTAL_WALLS / 2),
     },
   ])
 
@@ -47,20 +51,33 @@ const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
 
     if (newCount < numPlayers()) {
       setNumPlayers(newCount)
+      const newPlayers = players().slice(0, newCount)
+      for (const index in newPlayers) {
+        newPlayers[Number.parseInt(index)].walls = Math.floor(
+          TOTAL_WALLS / newCount
+        )
+      }
       setPlayers(players().slice(0, newCount))
       return
     }
 
     let newPlayers = players()
+    for (const index in newPlayers) {
+      newPlayers[Number.parseInt(index)].walls = Math.floor(
+        TOTAL_WALLS / newCount
+      )
+    }
     if (newPlayers.length === 2) {
       newPlayers.push({
         name: '',
         color: PlayerColor.RED,
+        walls: Math.floor(TOTAL_WALLS / newCount),
       })
     }
     newPlayers.push({
       name: '',
       color: PlayerColor.WHITE,
+      walls: Math.floor(TOTAL_WALLS / newCount),
     })
 
     setNumPlayers(newCount)

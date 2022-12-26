@@ -33,6 +33,11 @@ const Game: Component = () => {
     setPhase(GamePhase.GAME_IN_PROGRESS)
   }
 
+  function gameOver() {
+    setPlayers(undefined)
+    setPhase(GamePhase.CHOOSE_GAME_TYPE)
+  }
+
   return (
     <Switch>
       <Match when={phase() === GamePhase.CHOOSE_GAME_TYPE}>
@@ -42,7 +47,7 @@ const Game: Component = () => {
         <ConfigureLocalPlayers startGame={startGame} />
       </Match>
       <Match when={phase() === GamePhase.GAME_IN_PROGRESS}>
-        <Board playersProp={players()} />
+        <Board gameOver={gameOver} playersProp={players()} />
       </Match>
       <Match when={phase() === GamePhase.GAME_OVER}>
         <h1>Game Over</h1>

@@ -4,6 +4,7 @@ import { Position } from '../models/position'
 
 interface CellProps {
   isEligible: boolean
+  isGameOver: boolean
   onClick: () => void
   players: Player[]
   position: Position
@@ -26,7 +27,7 @@ const Cell: Component<CellProps> = (oldProps) => {
   }
 
   function hoverCss(): string {
-    if (props.isEligible) {
+    if (props.isEligible && !props.isGameOver) {
       return 'hover:bg-stone-200'
     }
     return ''
@@ -37,7 +38,7 @@ const Cell: Component<CellProps> = (oldProps) => {
   }
 
   function wrappedOnClick() {
-    if (props.isEligible) {
+    if (props.isEligible && !props.isGameOver) {
       props.onClick()
     }
   }
@@ -53,7 +54,9 @@ const Cell: Component<CellProps> = (oldProps) => {
 
   return (
     <div class={getCss()} onClick={wrappedOnClick}>
-      {props.isEligible && <div class="w-1 h-1 rounded bg-gray-500" />}
+      {!props.isGameOver && props.isEligible && (
+        <div class="w-1 h-1 rounded bg-gray-500" />
+      )}
       {!props.isEligible && getPlayerOnCell() && (
         <div class={`w-2 h-2 rounded ${getColor(getPlayerOnCell().color)}`} />
       )}
