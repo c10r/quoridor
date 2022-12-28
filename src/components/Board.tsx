@@ -2,7 +2,6 @@ import { Component, createSignal, For } from 'solid-js'
 import { Player } from '../models/player'
 import { Wall as WallModel } from '../models/wall'
 import Cell from './Cell'
-import TemporaryWall from './TemporaryWall'
 import Wall from './Wall'
 import WallSpacer from './WallSpacer'
 
@@ -214,15 +213,11 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                                 })
                               }
                             >
-                              {temporaryWall() &&
-                                temporaryWall().x === row() &&
-                                temporaryWall().y === col() &&
-                                temporaryWall().isVertical === true && (
-                                  <div class="relative bottom-0 left-0">
-                                    <TemporaryWall isVertical={true} />
-                                  </div>
-                                )}
-                              <Wall isVertical={true} hasWall={false} />
+                              <Wall
+                                position={{ x: row(), y: col() }}
+                                isVertical={true}
+                                wall={temporaryWall()}
+                              />
                             </div>
                           )}
                         </div>
@@ -244,16 +239,17 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                             })
                           }
                         >
-                          {temporaryWall() &&
-                            temporaryWall().x === row() &&
-                            temporaryWall().y === col() &&
-                            temporaryWall().isVertical === false && (
-                              <div class="relative bottom-0 left-0">
-                                <TemporaryWall isVertical={false} />
-                              </div>
-                            )}
-                          <Wall isVertical={false} hasWall={false} />
-                          {col() < 8 && <WallSpacer hasWall={false} />}
+                          <Wall
+                            isVertical={false}
+                            position={{ x: row(), y: col() }}
+                            wall={temporaryWall()}
+                          />
+                          {col() < 8 && (
+                            <WallSpacer
+                              position={{ x: row(), y: col() }}
+                              wall={temporaryWall()}
+                            />
+                          )}
                         </div>
                       )}
                     </For>
