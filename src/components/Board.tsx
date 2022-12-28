@@ -229,21 +229,22 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                   <div class="flex">
                     <For each={new Array(9)}>
                       {(_unused, col) => (
-                        <div
-                          class="flex"
-                          onMouseEnter={() =>
-                            updateTemporaryWall({
-                              x: row(),
-                              y: col(),
-                              isVertical: false,
-                            })
-                          }
-                        >
-                          <Wall
-                            isVertical={false}
-                            position={{ x: row(), y: col() }}
-                            wall={temporaryWall()}
-                          />
+                        <div class="flex">
+                          <div
+                            onMouseEnter={() =>
+                              updateTemporaryWall({
+                                x: row(),
+                                y: col(),
+                                isVertical: false,
+                              })
+                            }
+                          >
+                            <Wall
+                              isVertical={false}
+                              position={{ x: row(), y: col() }}
+                              wall={temporaryWall()}
+                            />
+                          </div>
                           {col() < 8 && (
                             <WallSpacer
                               position={{ x: row(), y: col() }}
