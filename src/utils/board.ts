@@ -2,6 +2,7 @@ import { GamePhase } from '../models/game'
 import { Player } from '../models/player'
 import { Position } from '../models/position'
 import { Wall } from '../models/wall'
+import { PathUtils } from './path'
 
 export class BoardUtils {
   static BOARD_SIZE = 9
@@ -88,71 +89,39 @@ export class BoardUtils {
       )
       const { x, y } = players[turn % players.length].position!
       // Above
-      if (x > 0 && !playerPositionsSet.has(`${x - 1}${y}`)) {
-        // Moving up (x, y) -> (x-1, y) is blocked by H(x-1, y) and H(x-1, y+1)
-        const horizontalWalls = walls.filter(
-          (w) => !w.isVertical && w.x === x - 1 && (w.y === y || w.y === y + 1)
-        )
-        if (horizontalWalls.length === 0) {
-          newEligibility[x - 1][y] = true
-        }
+      if (
+        x > 0 &&
+        !playerPositionsSet.has(`${x - 1}${y}`) &&
+        !PathUtils.isAdjacentSquareBlocked({ x, y }, { x: x - 1, y }, walls)
+      ) {
+        newEligibility[x - 1][y] = true
       }
       // Below
       if (
         x < BoardUtils.BOARD_SIZE - 1 &&
-        !playerPositionsSet.has(`${x + 1}${y}`)
+        !playerPositionsSet.has(`${x + 1}${y}`) &&
+        !PathUtils.isAdjacentSquareBlocked({ x, y }, { x: x + 1, y: y }, walls)
       ) {
-        // Moving down (x, y) -> (x+1, y) is blocked by H() and H(x, y) and H(x, y + 1)
-        const horizontalWalls = walls.filter(
-          (w) => !w.isVertical && w.x === x && (w.y === y || w.y === y + 1)
-        )
-        if (horizontalWalls.length === 0) {
-          newEligibility[x + 1][y] = true
-        }
+        newEligibility[x + 1][y] = true
       }
       // Left
-      if (y > 0 && !playerPositionsSet.has(`${x}${y - 1}`)) {
-        // Moving left (x, y) -> (x, y-1) is blocked by V(x, y-1) and V(x+1, y-1)
-        const verticalWalls = walls.filter(
-          (w) =>
-            w.isVertical &&
-            ((w.x === x && w.y === y - 1) || (w.x === x + 1 && w.y === y - 1))
-        )
-        if (verticalWalls.length === 0) {
-          newEligibility[x][y - 1] = true
-        }
+      if (
+        y > 0 &&
+        !playerPositionsSet.has(`${x}${y - 1}`) &&
+        !PathUtils.isAdjacentSquareBlocked({ x, y }, { x, y: y - 1 }, walls)
+      ) {
+        newEligibility[x][y - 1] = true
       }
       // Right
       if (
         y < BoardUtils.BOARD_SIZE - 1 &&
-        !playerPositionsSet.has(`${x}${y + 1}`)
+        !playerPositionsSet.has(`${x}${y + 1}`) &&
+        !PathUtils.isAdjacentSquareBlocked({ x, y }, { x, y: y + 1 }, walls)
       ) {
-        // Moving right (x, y) -> (x, y+1) is blocked by V(x, y) and V(x + 1, y)
-        const verticalWalls = walls.filter(
-          (w) =>
-            w.isVertical &&
-            ((w.x === x && w.y === y) || (w.x === x + 1 && w.y === y))
-        )
-        if (verticalWalls.length === 0) {
-          newEligibility[x][y + 1] = true
-        }
+        newEligibility[x][y + 1] = true
       }
     }
     return newEligibility
-  }
-
-  static blocksOnlyRemainingPath(
-    positionOfNewWall: Position,
-    players: Player[],
-    walls: Wall[]
-  ): boolean {
-    // Cannot block a path with fewer than 2 walls
-    // Saves the cost of calculating this every time early on
-    if (walls.length < 2) {
-      return false
-    }
-    // TODO
-    return false
   }
 
   static getIllegalSquaresForWall(

@@ -4,8 +4,9 @@ import { Player as PlayerModel } from '../models/player'
 import { Position } from '../models/position'
 import { Wall as WallModel } from '../models/wall'
 import { BoardUtils } from '../utils/board'
+import { PathUtils } from '../utils/path'
 import Cell from './Cell'
-import Player from './player'
+import Player from './Player'
 import Wall from './Wall'
 import WallSpacer from './WallSpacer'
 
@@ -116,7 +117,6 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
   }
 
   function onClickWall(position: Position, isVertical: boolean) {
-    console.log('wall:', position.x, position.y)
     // Cannot place walls until starting positions have been defined
     if (phase() !== GamePhase.PLAYING) {
       return
@@ -144,7 +144,11 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
     }
 
     if (
-      BoardUtils.blocksOnlyRemainingPath(normalizedPosition, players(), walls())
+      PathUtils.blocksOnlyRemainingPathForAnyPlayer(
+        { isVertical, x: normalizedPosition.x, y: normalizedPosition.y },
+        players(),
+        walls()
+      )
     ) {
       return
     }
@@ -271,17 +275,11 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                             />
                           </div>
                           {col() < BoardUtils.BOARD_SIZE - 1 && (
-                            <div
-                              onClick={() =>
-                                console.log('spacer:', row(), col())
-                              }
-                            >
-                              <WallSpacer
-                                position={{ x: row(), y: col() }}
-                                temporaryWall={temporaryWall()}
-                                walls={walls()}
-                              />
-                            </div>
+                            <WallSpacer
+                              position={{ x: row(), y: col() }}
+                              temporaryWall={temporaryWall()}
+                              walls={walls()}
+                            />
                           )}
                         </div>
                       )}
