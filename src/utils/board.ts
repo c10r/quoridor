@@ -64,14 +64,12 @@ export class BoardUtils {
           if (turn === 3) {
             newEligibility[row][column] =
               column === BoardUtils.BOARD_SIZE - 1 &&
+              (players[0].position.x !== row ||
+                players[0].position.y !== column) &&
               (players[1].position.x !== row ||
                 players[1].position.y !== column) &&
               (players[2].position.x !== row ||
-                players[2].position.y !== column) &&
-              (players[3].position.x !== row ||
-                players[3].position.y !== column) &&
-              (players[4].position.x !== row ||
-                players[4].position.y !== column)
+                players[2].position.y !== column)
           }
         }
       }

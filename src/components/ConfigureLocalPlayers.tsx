@@ -79,7 +79,7 @@ const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
       color: PlayerColor.WHITE,
       walls: Math.floor(TOTAL_WALLS / newCount),
     })
-
+    setPlayers(newPlayers)
     setNumPlayers(newCount)
   }
 
