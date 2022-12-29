@@ -44,7 +44,10 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
       if (players()[turn() % players().length].walls > 0) {
         if (
           !BoardUtils.checkIfWallWouldBeIllegal(
-            { x: wall.x, y: wall.y },
+            BoardUtils.normalizeClickPosition(
+              { x: wall.x, y: wall.y },
+              wall.isVertical
+            ),
             wall.isVertical,
             horizontalIntersectionSquares(),
             verticalIntersectionSquares()
