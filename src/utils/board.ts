@@ -76,37 +76,66 @@ export class BoardUtils {
     } else {
       // Set everything except for the 4 squares next to the player to false
       // We don't count diagonals
-      // Then exclude the current positions of all players
       for (const row of [...Array(BoardUtils.BOARD_SIZE).keys()]) {
         for (const column of [...Array(BoardUtils.BOARD_SIZE).keys()]) {
           newEligibility[row][column] = false
         }
       }
+
+      // Then exclude the current positions of all players and walls blocking paths
       const playerPositionsSet = new Set(
         players.map((player) => `${player.position.x}${player.position.y}`)
       )
       const { x, y } = players[turn % players.length].position!
       // Above
       if (x > 0 && !playerPositionsSet.has(`${x - 1}${y}`)) {
-        newEligibility[x - 1][y] = true
+        // Moving up (x, y) -> (x-1, y) is blocked by H(x-1, y) and H(x-1, y+1)
+        const horizontalWalls = walls.filter(
+          (w) => !w.isVertical && w.x === x - 1 && (w.y === y || w.y === y + 1)
+        )
+        if (horizontalWalls.length === 0) {
+          newEligibility[x - 1][y] = true
+        }
       }
       // Below
       if (
         x < BoardUtils.BOARD_SIZE - 1 &&
         !playerPositionsSet.has(`${x + 1}${y}`)
       ) {
-        newEligibility[x + 1][y] = true
+        // Moving down (x, y) -> (x+1, y) is blocked by H() and H(x, y) and H(x, y + 1)
+        const horizontalWalls = walls.filter(
+          (w) => !w.isVertical && w.x === x && (w.y === y || w.y === y + 1)
+        )
+        if (horizontalWalls.length === 0) {
+          newEligibility[x + 1][y] = true
+        }
       }
       // Left
       if (y > 0 && !playerPositionsSet.has(`${x}${y - 1}`)) {
-        newEligibility[x][y - 1] = true
+        // Moving left (x, y) -> (x, y-1) is blocked by V(x, y-1) and V(x+1, y-1)
+        const verticalWalls = walls.filter(
+          (w) =>
+            w.isVertical &&
+            ((w.x === x && w.y === y - 1) || (w.x === x + 1 && w.y === y - 1))
+        )
+        if (verticalWalls.length === 0) {
+          newEligibility[x][y - 1] = true
+        }
       }
       // Right
       if (
         y < BoardUtils.BOARD_SIZE - 1 &&
         !playerPositionsSet.has(`${x}${y + 1}`)
       ) {
-        newEligibility[x][y + 1] = true
+        // Moving right (x, y) -> (x, y+1) is blocked by V(x, y) and V(x + 1, y)
+        const verticalWalls = walls.filter(
+          (w) =>
+            w.isVertical &&
+            ((w.x === x && w.y === y) || (w.x === x + 1 && w.y === y))
+        )
+        if (verticalWalls.length === 0) {
+          newEligibility[x][y + 1] = true
+        }
       }
     }
     return newEligibility
