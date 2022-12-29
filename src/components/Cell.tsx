@@ -1,6 +1,7 @@
 import { Component, mergeProps } from 'solid-js'
 import { Player, PlayerColor } from '../models/player'
 import { Position } from '../models/position'
+import { PlayerUtils } from '../utils/player'
 
 interface CellProps {
   isEligible: boolean
@@ -13,19 +14,6 @@ interface CellProps {
 
 const Cell: Component<CellProps> = (oldProps) => {
   const props = mergeProps(oldProps)
-
-  function getColor(playerColor: PlayerColor): string {
-    switch (playerColor) {
-      case PlayerColor.BLACK:
-        return 'bg-stone-800'
-      case PlayerColor.BROWN:
-        return 'bg-orange-800'
-      case PlayerColor.RED:
-        return 'bg-red-500'
-      case PlayerColor.WHITE:
-        return 'bg-stone-100'
-    }
-  }
 
   function hoverCss(): string {
     if (props.isEligible && !props.isGameOver) {
@@ -63,7 +51,11 @@ const Cell: Component<CellProps> = (oldProps) => {
         <div class="w-1 h-1 rounded bg-gray-500" />
       )}
       {!props.isEligible && getPlayerOnCell() && (
-        <div class={`w-2 h-2 rounded ${getColor(getPlayerOnCell().color)}`} />
+        <div
+          class={`w-3 h-3 rounded ${PlayerUtils.getTailwindColor(
+            getPlayerOnCell().color
+          )}`}
+        />
       )}
     </div>
   )

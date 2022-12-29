@@ -4,7 +4,7 @@ export enum PlayerColor {
   BLACK,
   BROWN,
   RED,
-  WHITE,
+  CYAN,
 }
 
 export interface Player {

@@ -1,5 +1,6 @@
 import { Component, createSignal, For } from 'solid-js'
 import { Player, PlayerColor } from '../models/player'
+import { PlayerUtils } from '../utils/player'
 
 interface ConfigureLocalPlayersProps {
   startGame: (players: Player[]) => void
@@ -23,20 +24,6 @@ const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
       walls: Math.floor(TOTAL_WALLS / 2),
     },
   ])
-
-  function playerColorToCss(playerColor: PlayerColor): string {
-    switch (playerColor) {
-      case PlayerColor.BLACK:
-        return 'bg-stone-800'
-      case PlayerColor.BROWN:
-        return 'bg-orange-800'
-      case PlayerColor.RED:
-        return 'bg-red-500'
-      case PlayerColor.WHITE:
-      default:
-        return 'bg-stone-100'
-    }
-  }
 
   function tryAndStartGame() {
     if (allNamesFilled()) {
@@ -76,7 +63,7 @@ const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
     }
     newPlayers.push({
       name: '',
-      color: PlayerColor.WHITE,
+      color: PlayerColor.CYAN,
       walls: Math.floor(TOTAL_WALLS / newCount),
     })
     setPlayers(newPlayers)
@@ -136,7 +123,7 @@ const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
                 {players()[index()].name}
               </input>
               <div
-                class={`border border-black w-5 h-5 rounded ${playerColorToCss(
+                class={`border border-black w-5 h-5 rounded ${PlayerUtils.getTailwindColor(
                   players()[index()].color
                 )}`}
               />
