@@ -15,15 +15,15 @@ interface CellProps {
 const Cell: Component<CellProps> = (oldProps) => {
   const props = mergeProps(oldProps)
 
-  function hoverCss(): string {
+  function bgCss(): string {
     if (props.isEligible && !props.isGameOver) {
-      return 'hover:bg-stone-200'
+      return 'bg-white hover:bg-stone-200'
     }
-    return ''
+    return 'bg-white'
   }
 
   function getCss(): string {
-    return `flex items-center justify-center w-10 h-10 border border-black rounded-md ${hoverCss()}`
+    return `flex items-center justify-center w-10 h-10 border border-black rounded-md ${bgCss()}`
   }
 
   function wrappedOnClick() {

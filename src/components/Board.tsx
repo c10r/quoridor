@@ -197,7 +197,7 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
       <div class="flex w-full justify-around items-center">
         <For each={players()}>{(player, _) => <Player player={player} />}</For>
       </div>
-      <div class="flex flex-col">
+      <div class="flex flex-col p-3 bg-green-200 rounded">
         <For each={new Array(BoardUtils.BOARD_SIZE)}>
           {(_unused, row) => {
             return (
