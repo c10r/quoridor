@@ -116,6 +116,7 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
   }
 
   function onClickWall(position: Position, isVertical: boolean) {
+    console.log('wall:', position.x, position.y)
     // Cannot place walls until starting positions have been defined
     if (phase() !== GamePhase.PLAYING) {
       return
@@ -267,11 +268,17 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                             />
                           </div>
                           {col() < BoardUtils.BOARD_SIZE - 1 && (
-                            <WallSpacer
-                              position={{ x: row(), y: col() }}
-                              temporaryWall={temporaryWall()}
-                              walls={walls()}
-                            />
+                            <div
+                              onClick={() =>
+                                console.log('spacer:', row(), col())
+                              }
+                            >
+                              <WallSpacer
+                                position={{ x: row(), y: col() }}
+                                temporaryWall={temporaryWall()}
+                                walls={walls()}
+                              />
+                            </div>
                           )}
                         </div>
                       )}
