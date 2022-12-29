@@ -32,6 +32,7 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
         return new Array(9).fill(row === 0)
       })
   )
+  const [walls, setWalls] = createSignal<WallModel[]>([])
   const [isGameOver, setIsGameOver] = createSignal(false)
   const [temporaryWall, setTemporaryWall] = createSignal<
     undefined | WallModel
@@ -39,7 +40,10 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
 
   function updateTemporaryWall(wall: WallModel | undefined) {
     if (!isGameOver() && phase() !== GamePhase.CHOOSE_STARTING_POSITION) {
-      setTemporaryWall(wall)
+      if (players()[turn() % players().length].walls > 0) {
+        // TODO: Do not render temporary wall if permanent wall already exists here
+        setTemporaryWall(wall)
+      }
     }
   }
 
@@ -157,6 +161,32 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
     updateEligibility()
   }
 
+  function onClickWall(position: Position, isVertical: boolean) {
+    // Cannot place walls until starting positions have been defined
+    if (phase() !== GamePhase.PLAYING) {
+      return
+    }
+
+    // Cannot place walls if player has no more walls to place
+    const currentPlayer = players()[turn() % players().length]
+    if (currentPlayer.walls === 0) {
+      return
+    }
+    // Cannot place walls if a wall already exists in the same place
+    const sameWall = walls().filter(
+      (wall) => wall.x === position.x && wall.y === position.y
+    )
+    if (sameWall.length > 0) {
+      return
+    }
+
+    setWalls([...walls(), { isVertical, x: position.x, y: position.y }])
+    const newPlayers = JSON.parse(JSON.stringify(players()))
+    newPlayers[turn() % players().length].walls -= 1
+    setPlayers(newPlayers)
+    setTurn(turn() + 1)
+  }
+
   return (
     <div class="flex flex-col items-center justify-around h-screen w-screen">
       {isGameOver() && (
@@ -205,6 +235,9 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                           {col() < 8 && (
                             <div
                               class="flex"
+                              onClick={() =>
+                                onClickWall({ x: row(), y: col() }, true)
+                              }
                               onMouseEnter={() =>
                                 updateTemporaryWall({
                                   x: row(),
@@ -216,7 +249,8 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                               <Wall
                                 position={{ x: row(), y: col() }}
                                 isVertical={true}
-                                wall={temporaryWall()}
+                                temporaryWall={temporaryWall()}
+                                walls={walls()}
                               />
                             </div>
                           )}
@@ -231,6 +265,9 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                       {(_unused, col) => (
                         <div class="flex">
                           <div
+                            onClick={() =>
+                              onClickWall({ x: row(), y: col() }, false)
+                            }
                             onMouseEnter={() =>
                               updateTemporaryWall({
                                 x: row(),
@@ -242,13 +279,15 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                             <Wall
                               isVertical={false}
                               position={{ x: row(), y: col() }}
-                              wall={temporaryWall()}
+                              temporaryWall={temporaryWall()}
+                              walls={walls()}
                             />
                           </div>
                           {col() < 8 && (
                             <WallSpacer
                               position={{ x: row(), y: col() }}
-                              wall={temporaryWall()}
+                              temporaryWall={temporaryWall()}
+                              walls={walls()}
                             />
                           )}
                         </div>
