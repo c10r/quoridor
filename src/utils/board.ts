@@ -4,6 +4,8 @@ import { Position } from '../models/position'
 import { Wall } from '../models/wall'
 
 export class BoardUtils {
+  static BOARD_SIZE = 9
+
   static normalizeClickPosition(
     position: Position,
     isVertical: boolean
@@ -20,13 +22,13 @@ export class BoardUtils {
   static isGameOver(turn: number, players: Player[]): boolean {
     const playerTurn = turn % players.length
     if (playerTurn === 0) {
-      return players[0].position.x === 8
+      return players[0].position.x === BoardUtils.BOARD_SIZE - 1
     }
     if (playerTurn === 1) {
       return players[1].position.x === 0
     }
     if (playerTurn === 2) {
-      return players[2].position.y === 8
+      return players[2].position.y === BoardUtils.BOARD_SIZE - 1
     }
     if (playerTurn === 3) {
       return players[3].position.y === 0
@@ -43,25 +45,33 @@ export class BoardUtils {
   ): boolean[][] {
     const newEligibility = JSON.parse(JSON.stringify(currentEligibilities))
     if (phase === GamePhase.CHOOSE_STARTING_POSITION) {
-      for (const row of [...Array(9).keys()]) {
-        for (const column of [...Array(9).keys()]) {
+      for (const row of [...Array(BoardUtils.BOARD_SIZE).keys()]) {
+        for (const column of [...Array(BoardUtils.BOARD_SIZE).keys()]) {
           if (turn === 0) {
             newEligibility[row][column] = row === 0
           }
           if (turn === 1) {
-            newEligibility[row][column] = row === 8
+            newEligibility[row][column] = row === BoardUtils.BOARD_SIZE - 1
           }
           if (turn === 2) {
             newEligibility[row][column] =
               column === 0 &&
-              players[0].position.x !== row &&
-              players[0].position.y !== column
+              (players[0].position.x !== row ||
+                players[0].position.y !== column) &&
+              (players[1].position.x !== row ||
+                players[1].position.y !== column)
           }
           if (turn === 3) {
             newEligibility[row][column] =
-              column === 8 &&
-              players[1].position.x !== row &&
-              players[1].position.y !== column
+              column === BoardUtils.BOARD_SIZE - 1 &&
+              (players[1].position.x !== row ||
+                players[1].position.y !== column) &&
+              (players[2].position.x !== row ||
+                players[2].position.y !== column) &&
+              (players[3].position.x !== row ||
+                players[3].position.y !== column) &&
+              (players[4].position.x !== row ||
+                players[4].position.y !== column)
           }
         }
       }
@@ -69,8 +79,8 @@ export class BoardUtils {
       // Set everything except for the 4 squares next to the player to false
       // We don't count diagonals
       // Then exclude the current positions of all players
-      for (const row of [...Array(9).keys()]) {
-        for (const column of [...Array(9).keys()]) {
+      for (const row of [...Array(BoardUtils.BOARD_SIZE).keys()]) {
+        for (const column of [...Array(BoardUtils.BOARD_SIZE).keys()]) {
           newEligibility[row][column] = false
         }
       }
@@ -83,7 +93,10 @@ export class BoardUtils {
         newEligibility[x - 1][y] = true
       }
       // Below
-      if (x < 8 && !playerPositionsSet.has(`${x + 1}${y}`)) {
+      if (
+        x < BoardUtils.BOARD_SIZE - 1 &&
+        !playerPositionsSet.has(`${x + 1}${y}`)
+      ) {
         newEligibility[x + 1][y] = true
       }
       // Left
@@ -91,7 +104,10 @@ export class BoardUtils {
         newEligibility[x][y - 1] = true
       }
       // Right
-      if (y < 8 && !playerPositionsSet.has(`${x}${y + 1}`)) {
+      if (
+        y < BoardUtils.BOARD_SIZE - 1 &&
+        !playerPositionsSet.has(`${x}${y + 1}`)
+      ) {
         newEligibility[x][y + 1] = true
       }
     }

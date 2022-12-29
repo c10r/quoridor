@@ -13,18 +13,16 @@ interface BoardProps {
   playersProp: Player[]
 }
 
-const BOARD_SIZE = 9
-
 const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
   const [players, setPlayers] = createSignal(playersProp)
   const [turn, setTurn] = createSignal(0)
   const [phase, setPhase] = createSignal(GamePhase.CHOOSE_STARTING_POSITION)
   const [eligibility, setEligibility] = createSignal<boolean[][]>(
-    new Array(BOARD_SIZE)
+    new Array(BoardUtils.BOARD_SIZE)
       // If you don't call fill, .map doesn't do anything
       .fill(null)
       .map((_, row) => {
-        return new Array(BOARD_SIZE).fill(row === 0)
+        return new Array(BoardUtils.BOARD_SIZE).fill(row === 0)
       })
   )
   const [walls, setWalls] = createSignal<WallModel[]>([])
@@ -68,11 +66,11 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
     setWalls([])
     setPhase(GamePhase.CHOOSE_STARTING_POSITION)
     setEligibility(
-      new Array(BOARD_SIZE)
+      new Array(BoardUtils.BOARD_SIZE)
         // If you don't call fill, .map doesn't do anything
         .fill(null)
         .map((element, row) => {
-          return new Array(BOARD_SIZE).fill(row === 0)
+          return new Array(BoardUtils.BOARD_SIZE).fill(row === 0)
         })
     )
     setIsGameOver(false)
@@ -102,13 +100,14 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
     }
 
     setPlayerPosition(position)
-    if (BoardUtils.isGameOver(turn(), players())) {
-      setIsGameOver(true)
-      return
-    }
     if (phase() === GamePhase.CHOOSE_STARTING_POSITION) {
       if (turn() === players().length - 1) {
         setPhase(GamePhase.PLAYING)
+      }
+    } else {
+      if (BoardUtils.isGameOver(turn(), players())) {
+        setIsGameOver(true)
+        return
       }
     }
     setTurn(turn() + 1)
@@ -195,12 +194,12 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
         </div>
       )}
       <div class="flex flex-col">
-        <For each={new Array(BOARD_SIZE)}>
+        <For each={new Array(BoardUtils.BOARD_SIZE)}>
           {(_unused, row) => {
             return (
               <div class="flex flex-col">
                 <div class="flex">
-                  <For each={new Array(BOARD_SIZE)}>
+                  <For each={new Array(BoardUtils.BOARD_SIZE)}>
                     {(_unused, col) => {
                       return (
                         <div class="flex max-h-max max-w-max">
@@ -212,7 +211,7 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                             players={players()}
                             position={{ x: row(), y: col() }}
                           />
-                          {col() < BOARD_SIZE - 1 && (
+                          {col() < BoardUtils.BOARD_SIZE - 1 && (
                             <div
                               class="flex"
                               onClick={() =>
@@ -239,9 +238,9 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                     }}
                   </For>
                 </div>
-                {row() < BOARD_SIZE - 1 && (
+                {row() < BoardUtils.BOARD_SIZE - 1 && (
                   <div class="flex">
-                    <For each={new Array(BOARD_SIZE)}>
+                    <For each={new Array(BoardUtils.BOARD_SIZE)}>
                       {(_unused, col) => (
                         <div class="flex">
                           <div
@@ -263,7 +262,7 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                               walls={walls()}
                             />
                           </div>
-                          {col() < BOARD_SIZE - 1 && (
+                          {col() < BoardUtils.BOARD_SIZE - 1 && (
                             <WallSpacer
                               position={{ x: row(), y: col() }}
                               temporaryWall={temporaryWall()}
