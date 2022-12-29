@@ -1,6 +1,9 @@
 import { Component, createSignal, For } from 'solid-js'
+import { GamePhase } from '../models/game'
 import { Player } from '../models/player'
+import { Position } from '../models/position'
 import { Wall as WallModel } from '../models/wall'
+import { BoardUtils } from '../utils/board'
 import Cell from './Cell'
 import Wall from './Wall'
 import WallSpacer from './WallSpacer'
@@ -8,16 +11,6 @@ import WallSpacer from './WallSpacer'
 interface BoardProps {
   gameOver: () => void
   playersProp: Player[]
-}
-
-enum GamePhase {
-  CHOOSE_STARTING_POSITION,
-  PLAYING,
-}
-
-interface Position {
-  x: number
-  y: number
 }
 
 const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
@@ -28,7 +21,7 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
     new Array(9)
       // If you don't call fill, .map doesn't do anything
       .fill(null)
-      .map((element, row) => {
+      .map((_, row) => {
         return new Array(9).fill(row === 0)
       })
   )
@@ -50,6 +43,8 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
   function rematch() {
     setPlayers(playersProp)
     setTurn(0)
+    setTemporaryWall(undefined)
+    setWalls([])
     setPhase(GamePhase.CHOOSE_STARTING_POSITION)
     setEligibility(
       new Array(9)
@@ -62,80 +57,14 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
     setIsGameOver(false)
   }
 
-  function calculateGameOver(): boolean {
-    const playerTurn = turn() % players().length
-    if (playerTurn === 0) {
-      return players()[0].position.x === 8
-    }
-    if (playerTurn === 1) {
-      return players()[1].position.x === 0
-    }
-    if (playerTurn === 2) {
-      return players()[2].position.y === 8
-    }
-    if (playerTurn === 3) {
-      return players()[3].position.y === 0
-    }
-    return false
-  }
-
   function updateEligibility() {
-    const newEligibility: boolean[][] = JSON.parse(
-      JSON.stringify(eligibility())
+    const newEligibility = BoardUtils.calculateEligibleSquares(
+      eligibility(),
+      phase(),
+      turn(),
+      players(),
+      walls()
     )
-    if (phase() === GamePhase.CHOOSE_STARTING_POSITION) {
-      for (const row of [...Array(9).keys()]) {
-        for (const column of [...Array(9).keys()]) {
-          if (turn() === 0) {
-            newEligibility[row][column] = row === 0
-          }
-          if (turn() === 1) {
-            newEligibility[row][column] = row === 8
-          }
-          if (turn() === 2) {
-            newEligibility[row][column] =
-              column === 0 &&
-              players()[0].position.x !== row &&
-              players()[0].position.y !== column
-          }
-          if (turn() === 3) {
-            newEligibility[row][column] =
-              column === 8 &&
-              players()[1].position.x !== row &&
-              players()[1].position.y !== column
-          }
-        }
-      }
-    } else {
-      // Set everything except for the 4 squares next to the player to false
-      // We don't count diagonals
-      // Then exclude the current positions of all players
-      for (const row of [...Array(9).keys()]) {
-        for (const column of [...Array(9).keys()]) {
-          newEligibility[row][column] = false
-        }
-      }
-      const playerPositionsSet = new Set(
-        players().map((player) => `${player.position.x}${player.position.y}`)
-      )
-      const { x, y } = players()[turn() % players().length].position!
-      // Above
-      if (x > 0 && !playerPositionsSet.has(`${x - 1}${y}`)) {
-        newEligibility[x - 1][y] = true
-      }
-      // Below
-      if (x < 8 && !playerPositionsSet.has(`${x + 1}${y}`)) {
-        newEligibility[x + 1][y] = true
-      }
-      // Left
-      if (y > 0 && !playerPositionsSet.has(`${x}${y - 1}`)) {
-        newEligibility[x][y - 1] = true
-      }
-      // Right
-      if (y < 8 && !playerPositionsSet.has(`${x}${y + 1}`)) {
-        newEligibility[x][y + 1] = true
-      }
-    }
     setEligibility(newEligibility)
   }
 
@@ -147,8 +76,12 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
   }
 
   function onClickCell(position: Position) {
+    if (!eligibility()[position.x][position.y]) {
+      return
+    }
+
     setPlayerPosition(position)
-    if (calculateGameOver()) {
+    if (BoardUtils.isGameOver(turn(), players())) {
       setIsGameOver(true)
       return
     }
@@ -172,19 +105,36 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
     if (currentPlayer.walls === 0) {
       return
     }
-    // Cannot place walls if a wall already exists in the same place
-    const sameWall = walls().filter(
-      (wall) => wall.x === position.x && wall.y === position.y
+
+    const normalizedPosition = BoardUtils.normalizeClickPosition(
+      position,
+      isVertical
     )
-    if (sameWall.length > 0) {
+    if (
+      BoardUtils.wallIntersectsOtherWalls(
+        normalizedPosition,
+        isVertical,
+        walls()
+      )
+    ) {
       return
     }
 
-    setWalls([...walls(), { isVertical, x: position.x, y: position.y }])
+    if (
+      BoardUtils.blocksOnlyRemainingPath(normalizedPosition, players(), walls())
+    ) {
+      return
+    }
+
+    setWalls([
+      ...walls(),
+      { isVertical, x: normalizedPosition.x, y: normalizedPosition.y },
+    ])
     const newPlayers = JSON.parse(JSON.stringify(players()))
     newPlayers[turn() % players().length].walls -= 1
     setPlayers(newPlayers)
     setTurn(turn() + 1)
+    updateEligibility()
   }
 
   return (
