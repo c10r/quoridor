@@ -32,10 +32,20 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
   >()
 
   function updateTemporaryWall(wall: WallModel | undefined) {
+    if (wall === undefined) {
+      setTemporaryWall(wall)
+    }
     if (!isGameOver() && phase() !== GamePhase.CHOOSE_STARTING_POSITION) {
       if (players()[turn() % players().length].walls > 0) {
-        // TODO: Do not render temporary wall if permanent wall already exists here
-        setTemporaryWall(wall)
+        if (
+          !BoardUtils.wallIntersectsOtherWalls(
+            { x: wall.x, y: wall.y },
+            wall.isVertical,
+            walls()
+          )
+        ) {
+          setTemporaryWall(wall)
+        }
       }
     }
   }
