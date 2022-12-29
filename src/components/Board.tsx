@@ -1,16 +1,17 @@
 import { Component, createSignal, For } from 'solid-js'
 import { GamePhase } from '../models/game'
-import { Player } from '../models/player'
+import { Player as PlayerModel } from '../models/player'
 import { Position } from '../models/position'
 import { Wall as WallModel } from '../models/wall'
 import { BoardUtils } from '../utils/board'
 import Cell from './Cell'
+import Player from './player'
 import Wall from './Wall'
 import WallSpacer from './WallSpacer'
 
 interface BoardProps {
   gameOver: () => void
-  playersProp: Player[]
+  playersProp: PlayerModel[]
 }
 
 const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
@@ -193,6 +194,9 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
             : 'Either move your player or place a wall'}
         </div>
       )}
+      <div class="flex w-full justify-around items-center">
+        <For each={players()}>{(player, _) => <Player player={player} />}</For>
+      </div>
       <div class="flex flex-col">
         <For each={new Array(BoardUtils.BOARD_SIZE)}>
           {(_unused, row) => {

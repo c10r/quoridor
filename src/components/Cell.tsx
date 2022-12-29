@@ -1,5 +1,5 @@
 import { Component, mergeProps } from 'solid-js'
-import { Player, PlayerColor } from '../models/player'
+import { Player } from '../models/player'
 import { Position } from '../models/position'
 import { PlayerUtils } from '../utils/player'
 
