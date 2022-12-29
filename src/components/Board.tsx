@@ -30,18 +30,24 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
   const [temporaryWall, setTemporaryWall] = createSignal<
     undefined | WallModel
   >()
+  const [horizontalIntersectionSquares, setHorizontalIntersectionSquares] =
+    createSignal<Record<number, Set<number>>>({})
+  const [verticalIntersectionSquares, setVerticalIntersectionSquares] =
+    createSignal<Record<number, Set<number>>>({})
 
   function updateTemporaryWall(wall: WallModel | undefined) {
     if (wall === undefined) {
       setTemporaryWall(wall)
+      return
     }
     if (!isGameOver() && phase() !== GamePhase.CHOOSE_STARTING_POSITION) {
       if (players()[turn() % players().length].walls > 0) {
         if (
-          !BoardUtils.wallIntersectsOtherWalls(
+          !BoardUtils.checkIfWallWouldBeIllegal(
             { x: wall.x, y: wall.y },
             wall.isVertical,
-            walls()
+            horizontalIntersectionSquares(),
+            verticalIntersectionSquares()
           )
         ) {
           setTemporaryWall(wall)
@@ -121,10 +127,11 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
       isVertical
     )
     if (
-      BoardUtils.wallIntersectsOtherWalls(
+      BoardUtils.checkIfWallWouldBeIllegal(
         normalizedPosition,
         isVertical,
-        walls()
+        horizontalIntersectionSquares(),
+        verticalIntersectionSquares()
       )
     ) {
       return
@@ -136,6 +143,14 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
       return
     }
 
+    const { horizontal, vertical } = BoardUtils.getNewIllegalSquares(
+      position,
+      isVertical,
+      horizontalIntersectionSquares(),
+      verticalIntersectionSquares()
+    )
+    setHorizontalIntersectionSquares(horizontal)
+    setVerticalIntersectionSquares(vertical)
     setWalls([
       ...walls(),
       { isVertical, x: normalizedPosition.x, y: normalizedPosition.y },

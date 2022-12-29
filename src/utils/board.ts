@@ -112,49 +112,111 @@ export class BoardUtils {
     return false
   }
 
-  static wallIntersectsOtherWalls(
+  static getIllegalSquaresForWall(
     newWallPosition: Position,
-    isNewWallVertical: boolean,
-    walls: Wall[]
-  ): boolean {
-    for (const wall of walls) {
-      // Exact overlap
-      if (
-        newWallPosition.x === wall.x &&
-        newWallPosition.y === wall.y &&
-        isNewWallVertical === wall.isVertical
-      ) {
-        return true
-      }
-
-      if (wall.isVertical) {
-        if (
-          // V(x ± 1, y) or H(x - 1, y + 1) are banned
-          (isNewWallVertical &&
-            newWallPosition.y === wall.y &&
-            (newWallPosition.x === wall.x + 1 ||
-              newWallPosition.x === wall.x - 1)) ||
-          (!isNewWallVertical &&
-            newWallPosition.y === wall.y + 1 &&
-            newWallPosition.x === wall.x - 1)
-        ) {
-          return true
-        }
-      } else {
-        // H(x, y ± 1) or V(h + 1, y - 1) are banned
-        if (
-          (!isNewWallVertical &&
-            newWallPosition.x === wall.x &&
-            (newWallPosition.y === wall.y - 1 ||
-              newWallPosition.y === wall.y + 1)) ||
-          (isNewWallVertical &&
-            newWallPosition.x === wall.x + 1 &&
-            newWallPosition.y === wall.y - 1)
-        ) {
-          return true
-        }
+    isVertical: boolean
+  ): Record<'horizontal' | 'vertical', Record<number, Set<number>>> {
+    if (isVertical) {
+      // V(x ± 1, y) or H(x - 1, y + 1) are banned
+      return {
+        horizontal: {
+          [newWallPosition.x - 1]: new Set([newWallPosition.y + 1]),
+        },
+        vertical: {
+          [newWallPosition.x - 1]: new Set([newWallPosition.y]),
+          [newWallPosition.x + 1]: new Set([newWallPosition.y]),
+        },
       }
     }
-    return false
+
+    // H(x, y ± 1) or V(x + 1, y - 1) are banned
+    return {
+      horizontal: {
+        [newWallPosition.x]: new Set([
+          newWallPosition.y - 1,
+          newWallPosition.y + 1,
+        ]),
+      },
+      vertical: {
+        [newWallPosition.x + 1]: new Set([newWallPosition.y - 1]),
+      },
+    }
+  }
+
+  static checkIfWallWouldBeIllegal(
+    wallPosition: Position,
+    isVertical: boolean,
+    horizontalIntersectionSquares: Record<number, Set<number>>,
+    verticalIntersectionSquares: Record<number, Set<number>>
+  ): boolean {
+    if (isVertical) {
+      return (
+        wallPosition.x in verticalIntersectionSquares &&
+        verticalIntersectionSquares[wallPosition.x].has(wallPosition.y)
+      )
+    }
+    return (
+      wallPosition.x in horizontalIntersectionSquares &&
+      horizontalIntersectionSquares[wallPosition.x].has(wallPosition.y)
+    )
+  }
+
+  static getNewIllegalSquares(
+    position: Position,
+    isVertical: boolean,
+    horizontalIntersectionSquares: Record<number, Set<number>>,
+    verticalIntersectionSquares: Record<number, Set<number>>
+  ): Record<'horizontal' | 'vertical', Record<number, Set<number>>> {
+    // Deep clone objects tracking illegal horizontal / vertical squares
+    let newHorizontal = {}
+    let newVertical = {}
+    for (const [key, value] of Object.entries(horizontalIntersectionSquares)) {
+      newHorizontal[key] = new Set([...value])
+    }
+    for (const [key, value] of Object.entries(verticalIntersectionSquares)) {
+      newVertical[key] = new Set([...value])
+    }
+
+    // Add new entires for conflicts
+    const newIllegalSquares = BoardUtils.getIllegalSquaresForWall(
+      position,
+      isVertical
+    )
+    for (const [key, value] of Object.entries(newIllegalSquares.horizontal)) {
+      if (key in newHorizontal) {
+        newHorizontal[key] = new Set([...value, ...newHorizontal[key]])
+      } else {
+        newHorizontal[key] = new Set([...value])
+      }
+    }
+    for (const [key, value] of Object.entries(newIllegalSquares.vertical)) {
+      if (key in newVertical) {
+        newVertical[key] = new Set([...value, ...newVertical[key]])
+      } else {
+        newVertical[key] = new Set([...value])
+      }
+    }
+
+    // Add new entries preventing exact duplicates
+    if (isVertical) {
+      if (position.x in newVertical) {
+        newVertical[position.x] = new Set([
+          position.y,
+          ...newVertical[position.x],
+        ])
+      } else {
+        newVertical[position.x] = new Set([position.y])
+      }
+    } else {
+      if (position.x in newHorizontal) {
+        newHorizontal[position.x] = new Set([
+          position.y,
+          ...newHorizontal[position.x],
+        ])
+      } else {
+        newHorizontal[position.x] = new Set([position.y])
+      }
+    }
+    return { horizontal: newHorizontal, vertical: newVertical }
   }
 }
