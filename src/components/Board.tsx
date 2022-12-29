@@ -189,10 +189,13 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
       )}
       {!isGameOver() && (
         <div>
-          {players()[turn() % players().length].name}'s turn{': '}
+          {players()[turn() % players().length].name}
+          {': '}
           {phase() === GamePhase.CHOOSE_STARTING_POSITION
             ? 'Choose a starting position'
-            : 'Either move your player or place a wall'}
+            : players()[turn() % players().length].walls > 0
+            ? 'Move your player or place a wall'
+            : 'Move your player'}
         </div>
       )}
       <div class="flex w-full justify-around items-center">
