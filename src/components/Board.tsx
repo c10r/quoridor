@@ -16,7 +16,9 @@ interface BoardProps {
 }
 
 const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
-  const [players, setPlayers] = createSignal(playersProp)
+  const [players, setPlayers] = createSignal<PlayerModel[]>(
+    JSON.parse(JSON.stringify(playersProp))
+  )
   const [turn, setTurn] = createSignal(0)
   const [phase, setPhase] = createSignal(GamePhase.CHOOSE_STARTING_POSITION)
   const [eligibility, setEligibility] = createSignal<boolean[][]>(
@@ -62,7 +64,7 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
   }
 
   function rematch() {
-    setPlayers(playersProp)
+    setPlayers(JSON.parse(JSON.stringify(playersProp)))
     setTurn(0)
     setTemporaryWall(undefined)
     setWalls([])
@@ -91,7 +93,7 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
 
   function setPlayerPosition(position: Position) {
     const playerNumber = turn() % players().length
-    const newPlayers = players()
+    const newPlayers = JSON.parse(JSON.stringify(players()))
     newPlayers[playerNumber].position = position
     setPlayers(newPlayers)
   }
@@ -109,7 +111,6 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
     } else {
       if (BoardUtils.isGameOver(turn(), players())) {
         setIsGameOver(true)
-        return
       }
     }
     setTurn(turn() + 1)
