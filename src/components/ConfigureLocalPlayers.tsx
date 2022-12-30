@@ -54,18 +54,20 @@ const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
         TOTAL_WALLS / newCount
       )
     }
-    if (newPlayers.length === 2) {
+    if (newCount >= 3) {
       newPlayers.push({
         name: '',
         color: PlayerColor.RED,
         walls: Math.floor(TOTAL_WALLS / newCount),
       })
     }
-    newPlayers.push({
-      name: '',
-      color: PlayerColor.CYAN,
-      walls: Math.floor(TOTAL_WALLS / newCount),
-    })
+    if (newCount >= 4) {
+      newPlayers.push({
+        name: '',
+        color: PlayerColor.CYAN,
+        walls: Math.floor(TOTAL_WALLS / newCount),
+      })
+    }
     setPlayers(newPlayers)
     setNumPlayers(newCount)
   }
