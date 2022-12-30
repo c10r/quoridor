@@ -2,7 +2,6 @@ import { Wall } from '../models/wall'
 import { WallSpacer } from '../models/wallspacer'
 
 export class WallSpacerUtils {
-  // Any of the following 2:
   // H(x, y), V(x, y), H(x, y + 2), V(x + 2, y)
   static isJointWallSpacer(wallSpacer: WallSpacer): boolean {
     const jointWalls = wallSpacer.walls.filter((wall) => {
@@ -21,7 +20,7 @@ export class WallSpacerUtils {
           wall.y === wallSpacer.position.y)
       )
     })
-    return jointWalls.length >= 2
+    return jointWalls.length === 4
   }
 
   // Walls on the 0th column need to look forward since there is no -1 column
