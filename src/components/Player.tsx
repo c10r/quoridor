@@ -8,7 +8,7 @@ interface PlayerProps {
 
 const Player: Component<PlayerProps> = ({ player }: PlayerProps) => {
   return (
-    <div class="flex h-full gap-x-1 items-center justify-between">
+    <div class="flex h-full gap-x-2 items-center justify-center">
       {player.name}
       <div class="flex h-full gap-x-0.5 items-center justify-center">
         <For each={new Array(player.walls)}>

@@ -207,95 +207,105 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
             : 'Move your player'}
         </div>
       )}
-      <div class="flex w-full justify-around items-center">
-        <For each={players()}>{(player, _) => <Player player={player} />}</For>
-      </div>
-      <div class="flex flex-col p-3 bg-green-200 rounded">
-        <For each={new Array(BoardUtils.BOARD_SIZE)}>
-          {(_unused, row) => {
-            return (
-              <div class="flex flex-col">
-                <div class="flex">
-                  <For each={new Array(BoardUtils.BOARD_SIZE)}>
-                    {(_unused, col) => {
-                      return (
-                        <div class="flex max-h-max max-w-max">
-                          <Cell
-                            isEligible={eligibility()[row()][col()]}
-                            isGameOver={isGameOver()}
-                            onMouseEnter={() => updateTemporaryWall(undefined)}
-                            onClick={() => onClickCell({ x: row(), y: col() })}
-                            players={players()}
-                            position={{ x: row(), y: col() }}
-                            turn={turn()}
-                          />
-                          {col() < BoardUtils.BOARD_SIZE - 1 && (
-                            <div
-                              class="flex"
-                              onClick={() =>
-                                onClickWall({ x: row(), y: col() }, true)
-                              }
-                              onMouseEnter={() =>
-                                updateTemporaryWall({
-                                  x: row(),
-                                  y: col(),
-                                  isVertical: true,
-                                })
-                              }
-                            >
-                              <Wall
+      <div class="flex flex-col full-w full-h">
+        <Player player={players()[0]} />
+        <div class="flex full-w full-h">
+          {players().length > 2 && <Player player={players()[2]} />}
+          <div class="flex flex-col p-3 bg-green-200 rounded">
+            <For each={new Array(BoardUtils.BOARD_SIZE)}>
+              {(_unused, row) => {
+                return (
+                  <div class="flex flex-col">
+                    <div class="flex">
+                      <For each={new Array(BoardUtils.BOARD_SIZE)}>
+                        {(_unused, col) => {
+                          return (
+                            <div class="flex max-h-max max-w-max">
+                              <Cell
+                                isEligible={eligibility()[row()][col()]}
+                                isGameOver={isGameOver()}
+                                onMouseEnter={() =>
+                                  updateTemporaryWall(undefined)
+                                }
+                                onClick={() =>
+                                  onClickCell({ x: row(), y: col() })
+                                }
+                                players={players()}
                                 position={{ x: row(), y: col() }}
-                                isVertical={true}
-                                temporaryWall={temporaryWall()}
-                                walls={walls()}
+                                turn={turn()}
                               />
+                              {col() < BoardUtils.BOARD_SIZE - 1 && (
+                                <div
+                                  class="flex"
+                                  onClick={() =>
+                                    onClickWall({ x: row(), y: col() }, true)
+                                  }
+                                  onMouseEnter={() =>
+                                    updateTemporaryWall({
+                                      x: row(),
+                                      y: col(),
+                                      isVertical: true,
+                                    })
+                                  }
+                                >
+                                  <Wall
+                                    position={{ x: row(), y: col() }}
+                                    isVertical={true}
+                                    temporaryWall={temporaryWall()}
+                                    walls={walls()}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          )
+                        }}
+                      </For>
+                    </div>
+                    {row() < BoardUtils.BOARD_SIZE - 1 && (
+                      <div class="flex">
+                        <For each={new Array(BoardUtils.BOARD_SIZE)}>
+                          {(_unused, col) => (
+                            <div class="flex">
+                              <div
+                                onClick={() =>
+                                  onClickWall({ x: row(), y: col() }, false)
+                                }
+                                onMouseEnter={() =>
+                                  updateTemporaryWall({
+                                    x: row(),
+                                    y: col(),
+                                    isVertical: false,
+                                  })
+                                }
+                              >
+                                <Wall
+                                  isVertical={false}
+                                  position={{ x: row(), y: col() }}
+                                  temporaryWall={temporaryWall()}
+                                  walls={walls()}
+                                />
+                              </div>
+                              {col() < BoardUtils.BOARD_SIZE - 1 && (
+                                <WallSpacer
+                                  position={{ x: row(), y: col() }}
+                                  temporaryWall={temporaryWall()}
+                                  walls={walls()}
+                                />
+                              )}
                             </div>
                           )}
-                        </div>
-                      )
-                    }}
-                  </For>
-                </div>
-                {row() < BoardUtils.BOARD_SIZE - 1 && (
-                  <div class="flex">
-                    <For each={new Array(BoardUtils.BOARD_SIZE)}>
-                      {(_unused, col) => (
-                        <div class="flex">
-                          <div
-                            onClick={() =>
-                              onClickWall({ x: row(), y: col() }, false)
-                            }
-                            onMouseEnter={() =>
-                              updateTemporaryWall({
-                                x: row(),
-                                y: col(),
-                                isVertical: false,
-                              })
-                            }
-                          >
-                            <Wall
-                              isVertical={false}
-                              position={{ x: row(), y: col() }}
-                              temporaryWall={temporaryWall()}
-                              walls={walls()}
-                            />
-                          </div>
-                          {col() < BoardUtils.BOARD_SIZE - 1 && (
-                            <WallSpacer
-                              position={{ x: row(), y: col() }}
-                              temporaryWall={temporaryWall()}
-                              walls={walls()}
-                            />
-                          )}
-                        </div>
-                      )}
-                    </For>
+                        </For>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            )
-          }}
-        </For>
+                )
+              }}
+            </For>
+            {}
+          </div>
+          {players().length > 3 && <Player player={players()[3]} />}
+        </div>
+        <Player player={players()[1]} />
       </div>
     </div>
   )
