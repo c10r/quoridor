@@ -1,9 +1,10 @@
-import { Component, createSignal, For } from 'solid-js'
+import { Component, createEffect, createSignal, For } from 'solid-js'
 import { GamePhase } from '../models/game'
 import { Player as PlayerModel } from '../models/player'
 import { Position } from '../models/position'
 import { Wall as WallModel } from '../models/wall'
 import { BoardUtils } from '../utils/board'
+import { ComputerUtils } from '../utils/computer'
 import { PathUtils } from '../utils/path'
 import Cell from './Cell'
 import Player from './Player'
@@ -196,6 +197,28 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
     setTurn(turn() + 1)
     updateEligibility()
   }
+
+  createEffect(() => {
+    if (isGameOver()) {
+      return
+    }
+    if (players()[turn() % players().length].isComputer) {
+      if (phase() === GamePhase.CHOOSE_STARTING_POSITION) {
+        const newPosition = ComputerUtils.getStartingPosition(
+          turn() % players().length
+        )
+        onClickCell(newPosition)
+        return
+      }
+      onClickCell(
+        ComputerUtils.findBestMove(
+          turn() % players().length,
+          players(),
+          walls()
+        )
+      )
+    }
+  })
 
   return (
     <div class="flex flex-col items-center justify-around h-screen w-screen">

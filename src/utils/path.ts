@@ -16,36 +16,10 @@ export class PathUtils {
     }
 
     for (const [index, player] of players.entries()) {
-      let goalPositions: Position[]
-      if (index === 0) {
-        goalPositions = Array(BoardUtils.BOARD_SIZE)
-          .fill(null)
-          .map((_, index) => {
-            return { x: BoardUtils.BOARD_SIZE - 1, y: index }
-          })
-      } else if (index === 1) {
-        goalPositions = Array(BoardUtils.BOARD_SIZE)
-          .fill(null)
-          .map((_, index) => {
-            return { x: 0, y: index }
-          })
-      } else if (index === 2) {
-        goalPositions = Array(BoardUtils.BOARD_SIZE)
-          .fill(null)
-          .map((_, index) => {
-            return { x: index, y: BoardUtils.BOARD_SIZE - 1 }
-          })
-      } else {
-        goalPositions = Array(BoardUtils.BOARD_SIZE)
-          .fill(null)
-          .map((_, index) => {
-            return { x: index, y: 0 }
-          })
-      }
       const isBlocked = PathUtils.blocksOnlyRemainingPathForSinglePlayer(
         newWall,
         player,
-        goalPositions,
+        PathUtils.getGoalSquares(index),
         walls
       )
       if (isBlocked) {
@@ -61,20 +35,21 @@ export class PathUtils {
     goalSquares: Position[],
     walls: Wall[]
   ): boolean {
-    return PathUtils.blocksOnlyRemainingPathForSinglePlayerHelper(
+    const pathLength = PathUtils.calculateBFSPathFromPosition(
       [player.position!],
       goalSquares,
       [...walls, newWall],
       new Set([])
     )
+    return pathLength < 0
   }
 
-  static blocksOnlyRemainingPathForSinglePlayerHelper(
+  static calculateBFSPathFromPosition(
     queue: Position[],
     goalSquares: Position[],
     walls: Wall[],
     visitedSquares: Set<string>
-  ): boolean {
+  ): number {
     while (queue.length > 0) {
       const position = queue.shift()
       visitedSquares.add(`${position.x},${position.y}`)
@@ -82,7 +57,7 @@ export class PathUtils {
         (p) => position.x === p.x && position.y === p.y
       )
       if (matchingGoal.length > 0) {
-        return false
+        return visitedSquares.size
       }
 
       const unblockedAdjacentSquares = PathUtils.getAllUnblockedAdjacentSquares(
@@ -98,7 +73,35 @@ export class PathUtils {
         }
       }
     }
-    return true
+    return -1
+  }
+
+  static getGoalSquares(index: number): Position[] {
+    if (index === 0) {
+      return Array(BoardUtils.BOARD_SIZE)
+        .fill(null)
+        .map((_, index) => {
+          return { x: BoardUtils.BOARD_SIZE - 1, y: index }
+        })
+    } else if (index === 1) {
+      return Array(BoardUtils.BOARD_SIZE)
+        .fill(null)
+        .map((_, index) => {
+          return { x: 0, y: index }
+        })
+    } else if (index === 2) {
+      return Array(BoardUtils.BOARD_SIZE)
+        .fill(null)
+        .map((_, index) => {
+          return { x: index, y: BoardUtils.BOARD_SIZE - 1 }
+        })
+    } else {
+      return Array(BoardUtils.BOARD_SIZE)
+        .fill(null)
+        .map((_, index) => {
+          return { x: index, y: 0 }
+        })
+    }
   }
 
   static getAllUnblockedAdjacentSquares(
