@@ -249,9 +249,11 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                                   }
                                 >
                                   <Wall
-                                    position={{ x: row(), y: col() }}
                                     isVertical={true}
+                                    players={players()}
+                                    position={{ x: row(), y: col() }}
                                     temporaryWall={temporaryWall()}
+                                    turn={turn()}
                                     walls={walls()}
                                   />
                                 </div>
@@ -280,15 +282,19 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                               >
                                 <Wall
                                   isVertical={false}
+                                  players={players()}
                                   position={{ x: row(), y: col() }}
                                   temporaryWall={temporaryWall()}
+                                  turn={turn()}
                                   walls={walls()}
                                 />
                               </div>
                               {col() < BoardUtils.BOARD_SIZE - 1 && (
                                 <WallSpacer
+                                  players={players()}
                                   position={{ x: row(), y: col() }}
                                   temporaryWall={temporaryWall()}
+                                  turn={turn()}
                                   walls={walls()}
                                 />
                               )}

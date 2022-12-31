@@ -1,11 +1,15 @@
 import { Component, createMemo } from 'solid-js'
+import { Player } from '../models/player'
 import { Position } from '../models/position'
 import { Wall as WallModel } from '../models/wall'
+import { PlayerUtils } from '../utils/player'
 
 interface WallProps {
   position: Position
   isVertical: boolean
   temporaryWall: WallModel | undefined
+  players: Player[]
+  turn: number
   walls: WallModel[]
 }
 
@@ -84,13 +88,18 @@ const Wall: Component<WallProps> = (props) => {
     return false
   })
 
+  function getTemporaryWallColor(): string {
+    const player = props.players[props.turn % props.players.length]
+    return PlayerUtils.getTailwindColor(player.color)
+  }
+
   return (
     <div
       class={`flex ${props.isVertical ? 'flex-col w-2 h-10' : 'w-10 h-2'} ${
         isPermanentWall()
           ? 'bg-stone-400'
           : hasTemporaryWall()
-          ? 'bg-purple-400'
+          ? getTemporaryWallColor()
           : 'bg-green-200'
       }`}
     ></div>
