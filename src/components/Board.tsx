@@ -38,6 +38,9 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
     createSignal<Record<number, Set<number>>>({})
   const [verticalIntersectionSquares, setVerticalIntersectionSquares] =
     createSignal<Record<number, Set<number>>>({})
+  const [winningPlayerName, setWinningPlayerName] = createSignal<
+    string | undefined
+  >()
 
   function updateTemporaryWall(wall: WallModel | undefined) {
     if (wall === undefined) {
@@ -111,6 +114,7 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
     } else {
       if (BoardUtils.isGameOver(turn(), players())) {
         setIsGameOver(true)
+        setWinningPlayerName(players()[turn() % players().length].name)
       }
     }
     setTurn(turn() + 1)
@@ -177,7 +181,7 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
     <div class="flex flex-col items-center justify-around h-screen w-screen">
       {isGameOver() && (
         <div class="flex flex-col items-center justify-center">
-          <h1>{players()[turn() % players().length].name} wins!</h1>
+          <h1>{winningPlayerName()} wins!</h1>
           <button
             class="max-w-max bg-red-500 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded"
             onClick={gameOver}
