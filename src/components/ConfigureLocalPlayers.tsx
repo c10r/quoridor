@@ -12,6 +12,7 @@ const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
   startGame,
 }) => {
   const [numPlayers, setNumPlayers] = createSignal(2)
+  const [allNamesFilled, setAllNamesFilled] = createSignal(false)
   const [players, setPlayers] = createSignal<Player[]>([
     {
       name: '',
@@ -80,9 +81,9 @@ const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
     })
   }
 
-  function allNamesFilled(): boolean {
+  function updateAllNamesFilled() {
     const nonEmptyNames = players().filter((player) => player.name.length > 0)
-    return nonEmptyNames.length === numPlayers()
+    setAllNamesFilled(nonEmptyNames.length === numPlayers())
   }
 
   return (
@@ -113,12 +114,13 @@ const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
             <div class="flex gap-x-2 items-center justify-center">
               <label>Player {index() + 1}:</label>
               <input
-                onChange={(e) =>
+                onInput={(e) => {
                   updatePlayerName(
                     (e.target as HTMLInputElement).value,
                     index()
                   )
-                }
+                  updateAllNamesFilled()
+                }}
                 class="shadow appearance-none border rounded py-1.5 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 type="text"
               >
