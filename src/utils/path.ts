@@ -65,7 +65,7 @@ export class PathUtils {
       player.position!,
       goalSquares,
       [...walls, newWall],
-      []
+      new Set([])
     )
   }
 
@@ -73,9 +73,9 @@ export class PathUtils {
     position: Position,
     goalSquares: Position[],
     walls: Wall[],
-    visitedSquares: Position[]
+    visitedSquares: Set<string>
   ): boolean {
-    if (visitedSquares.length > BoardUtils.BOARD_SIZE * BoardUtils.BOARD_SIZE) {
+    if (visitedSquares.size > BoardUtils.BOARD_SIZE * BoardUtils.BOARD_SIZE) {
       return true
     }
     const matchingGoal = goalSquares.filter(
@@ -89,10 +89,7 @@ export class PathUtils {
       position,
       walls
     ).filter((position) => {
-      const checkVisited = visitedSquares.filter(
-        (p) => p.x === position.x && p.y === position.y
-      )
-      return checkVisited.length === 0
+      return !visitedSquares.has(`${position.x},${position.y}`)
     })
 
     return (
@@ -101,7 +98,7 @@ export class PathUtils {
             unblockedAdjacentSquares[0],
             goalSquares,
             walls,
-            [...visitedSquares, position]
+            new Set([...visitedSquares, `${position.x},${position.y}`])
           )
         : true) &&
       (unblockedAdjacentSquares.length > 1
@@ -109,7 +106,7 @@ export class PathUtils {
             unblockedAdjacentSquares[1],
             goalSquares,
             walls,
-            [...visitedSquares, position]
+            new Set([...visitedSquares, `${position.x},${position.y}`])
           )
         : true) &&
       (unblockedAdjacentSquares.length > 2
@@ -117,7 +114,7 @@ export class PathUtils {
             unblockedAdjacentSquares[2],
             goalSquares,
             walls,
-            [...visitedSquares, position]
+            new Set([...visitedSquares, `${position.x},${position.y}`])
           )
         : true) &&
       (unblockedAdjacentSquares.length > 3
@@ -125,7 +122,7 @@ export class PathUtils {
             unblockedAdjacentSquares[3],
             goalSquares,
             walls,
-            [...visitedSquares, position]
+            new Set([...visitedSquares, `${position.x},${position.y}`])
           )
         : true)
     )
