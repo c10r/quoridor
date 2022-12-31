@@ -10,6 +10,7 @@ interface CellProps {
   onMouseEnter: () => void
   players: Player[]
   position: Position
+  turn: number
 }
 
 const Cell: Component<CellProps> = (oldProps) => {
@@ -48,7 +49,11 @@ const Cell: Component<CellProps> = (oldProps) => {
       onMouseEnter={props.onMouseEnter}
     >
       {!props.isGameOver && props.isEligible && (
-        <div class="w-1 h-1 rounded bg-gray-500" />
+        <div
+          class={`w-1 h-1 rounded ${PlayerUtils.getTailwindColor(
+            props.players[props.turn % props.players.length].color
+          )}`}
+        />
       )}
       {!props.isEligible && getPlayerOnCell() && (
         <div

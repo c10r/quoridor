@@ -227,6 +227,7 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                             onClick={() => onClickCell({ x: row(), y: col() })}
                             players={players()}
                             position={{ x: row(), y: col() }}
+                            turn={turn()}
                           />
                           {col() < BoardUtils.BOARD_SIZE - 1 && (
                             <div
