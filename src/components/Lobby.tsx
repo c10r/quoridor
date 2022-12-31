@@ -21,12 +21,6 @@ const Lobby: Component<LobbyProps> = ({ chooseLocal }) => {
       >
         Play online (Coming soon!)
       </button>
-      <button
-        class="max-w-max bg-gray-400 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded"
-        disabled
-      >
-        Play against a computer (Coming soon!)
-      </button>
     </div>
   )
 }

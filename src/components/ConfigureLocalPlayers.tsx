@@ -1,4 +1,6 @@
 import { Component, createSignal, For } from 'solid-js'
+import { ComputerIcon } from '../images/Computer'
+import { UserIcon } from '../images/User'
 import { Player, PlayerColor } from '../models/player'
 import { PlayerUtils } from '../utils/player'
 
@@ -12,22 +14,24 @@ const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
   startGame,
 }) => {
   const [numPlayers, setNumPlayers] = createSignal(2)
-  const [allNamesFilled, setAllNamesFilled] = createSignal(false)
+  const [canStartGame, setCanStartGame] = createSignal(false)
   const [players, setPlayers] = createSignal<Player[]>([
     {
-      name: '',
       color: PlayerColor.BLACK,
+      isComputer: false,
+      name: '',
       walls: Math.floor(TOTAL_WALLS / 2),
     },
     {
-      name: '',
       color: PlayerColor.BROWN,
+      isComputer: false,
+      name: '',
       walls: Math.floor(TOTAL_WALLS / 2),
     },
   ])
 
   function tryAndStartGame() {
-    if (allNamesFilled()) {
+    if (canStartGame()) {
       startGame(players())
     }
   }
@@ -57,15 +61,17 @@ const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
     }
     if (newCount >= 3) {
       newPlayers.push({
-        name: '',
         color: PlayerColor.RED,
+        isComputer: false,
+        name: '',
         walls: Math.floor(TOTAL_WALLS / newCount),
       })
     }
     if (newCount >= 4) {
       newPlayers.push({
-        name: '',
         color: PlayerColor.CYAN,
+        isComputer: false,
+        name: '',
         walls: Math.floor(TOTAL_WALLS / newCount),
       })
     }
@@ -81,9 +87,21 @@ const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
     })
   }
 
-  function updateAllNamesFilled() {
+  function toggleComputerPlayer(index: number) {
+    setPlayers((prevPlayers) => {
+      const newPlayers = [...prevPlayers]
+      newPlayers[index].isComputer = !newPlayers[index].isComputer
+      return newPlayers
+    })
+    updateCanStartGame()
+  }
+
+  function updateCanStartGame() {
     const nonEmptyNames = players().filter((player) => player.name.length > 0)
-    setAllNamesFilled(nonEmptyNames.length === numPlayers())
+    const numHumans = players().filter((player) => !player.isComputer)
+    setCanStartGame(
+      nonEmptyNames.length === numPlayers() && numHumans.length > 0
+    )
   }
 
   return (
@@ -119,13 +137,33 @@ const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
                     (e.target as HTMLInputElement).value,
                     index()
                   )
-                  updateAllNamesFilled()
+                  updateCanStartGame()
                 }}
                 class="shadow appearance-none border rounded py-1.5 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 type="text"
               >
                 {players()[index()].name}
               </input>
+              <div class="flex py-1 px-1.5 gap-x-3 rounded border border-gray-800">
+                <button onClick={() => toggleComputerPlayer(index())}>
+                  <UserIcon
+                    class={
+                      players()[index()].isComputer
+                        ? 'text-gray-500'
+                        : 'text-blue-500'
+                    }
+                  />
+                </button>
+                <button onClick={() => toggleComputerPlayer(index())}>
+                  <ComputerIcon
+                    class={
+                      players()[index()].isComputer
+                        ? 'text-blue-500'
+                        : 'text-gray-500'
+                    }
+                  />
+                </button>
+              </div>
               <div
                 class={`border border-black w-5 h-5 rounded ${PlayerUtils.getTailwindColor(
                   players()[index()].color
@@ -136,11 +174,11 @@ const ConfigureLocalPlayers: Component<ConfigureLocalPlayersProps> = ({
         </For>
         <button
           class={`self-center mt-4 max-w-max text-white font-semibold py-2 px-4 rounded ${
-            allNamesFilled()
+            canStartGame()
               ? 'bg-blue-500 hover:bg-blue-700'
               : 'bg-gray-500 hover:bg-gray-700'
           }`}
-          disabled={!allNamesFilled()}
+          disabled={!canStartGame()}
           onClick={tryAndStartGame}
         >
           Start game

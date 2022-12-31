@@ -8,8 +8,9 @@ export enum PlayerColor {
 }
 
 export interface Player {
-  name: string
   color: PlayerColor
+  isComputer: boolean
+  name: string
   position?: Position
   walls: number
 }
