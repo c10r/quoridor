@@ -88,7 +88,7 @@ const Wall: Component<WallProps> = (props) => {
     <div
       class={`flex ${props.isVertical ? 'flex-col w-2 h-10' : 'w-10 h-2'} ${
         isPermanentWall()
-          ? 'bg-blue-400'
+          ? 'bg-stone-400'
           : hasTemporaryWall()
           ? 'bg-purple-400'
           : 'bg-green-200'

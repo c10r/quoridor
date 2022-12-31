@@ -6,7 +6,7 @@ export class PlayerUtils {
       case PlayerColor.BLACK:
         return 'bg-stone-800'
       case PlayerColor.BROWN:
-        return 'bg-orange-800'
+        return 'bg-yellow-500'
       case PlayerColor.RED:
         return 'bg-red-500'
       case PlayerColor.CYAN:

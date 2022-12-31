@@ -16,7 +16,7 @@ const WallSpacer: Component<WallSpacerModel> = (props) => {
     <div
       class={`flex w-2 h-2 ${
         isPermanentWall() || WallSpacerUtils.isJointWallSpacer(props)
-          ? 'bg-blue-400'
+          ? 'bg-stone-400'
           : WallSpacerUtils.hasWall(props, props.temporaryWall)
           ? 'bg-purple-400'
           : 'bg-green-200'
