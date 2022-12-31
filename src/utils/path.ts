@@ -62,7 +62,7 @@ export class PathUtils {
     walls: Wall[]
   ): boolean {
     return PathUtils.blocksOnlyRemainingPathForSinglePlayerHelper(
-      player.position!,
+      [player.position!],
       goalSquares,
       [...walls, newWall],
       new Set([])
@@ -70,62 +70,35 @@ export class PathUtils {
   }
 
   static blocksOnlyRemainingPathForSinglePlayerHelper(
-    position: Position,
+    queue: Position[],
     goalSquares: Position[],
     walls: Wall[],
     visitedSquares: Set<string>
   ): boolean {
-    if (visitedSquares.size > BoardUtils.BOARD_SIZE * BoardUtils.BOARD_SIZE) {
-      return true
-    }
-    const matchingGoal = goalSquares.filter(
-      (p) => position.x === p.x && position.y === p.y
-    )
-    if (matchingGoal.length > 0) {
-      return false
-    }
+    while (queue.length > 0) {
+      const position = queue.shift()
+      visitedSquares.add(`${position.x},${position.y}`)
+      const matchingGoal = goalSquares.filter(
+        (p) => position.x === p.x && position.y === p.y
+      )
+      if (matchingGoal.length > 0) {
+        return false
+      }
 
-    const unblockedAdjacentSquares = PathUtils.getAllUnblockedAdjacentSquares(
-      position,
-      walls
-    ).filter((position) => {
-      return !visitedSquares.has(`${position.x},${position.y}`)
-    })
-
-    return (
-      (unblockedAdjacentSquares.length > 0
-        ? PathUtils.blocksOnlyRemainingPathForSinglePlayerHelper(
-            unblockedAdjacentSquares[0],
-            goalSquares,
-            walls,
-            new Set([...visitedSquares, `${position.x},${position.y}`])
-          )
-        : true) &&
-      (unblockedAdjacentSquares.length > 1
-        ? PathUtils.blocksOnlyRemainingPathForSinglePlayerHelper(
-            unblockedAdjacentSquares[1],
-            goalSquares,
-            walls,
-            new Set([...visitedSquares, `${position.x},${position.y}`])
-          )
-        : true) &&
-      (unblockedAdjacentSquares.length > 2
-        ? PathUtils.blocksOnlyRemainingPathForSinglePlayerHelper(
-            unblockedAdjacentSquares[2],
-            goalSquares,
-            walls,
-            new Set([...visitedSquares, `${position.x},${position.y}`])
-          )
-        : true) &&
-      (unblockedAdjacentSquares.length > 3
-        ? PathUtils.blocksOnlyRemainingPathForSinglePlayerHelper(
-            unblockedAdjacentSquares[3],
-            goalSquares,
-            walls,
-            new Set([...visitedSquares, `${position.x},${position.y}`])
-          )
-        : true)
-    )
+      const unblockedAdjacentSquares = PathUtils.getAllUnblockedAdjacentSquares(
+        position,
+        walls
+      )
+      if (unblockedAdjacentSquares.length === 0) {
+        continue
+      }
+      for (const position of unblockedAdjacentSquares) {
+        if (!visitedSquares.has(`${position.x},${position.y}`)) {
+          queue.push(position)
+        }
+      }
+    }
+    return true
   }
 
   static getAllUnblockedAdjacentSquares(
