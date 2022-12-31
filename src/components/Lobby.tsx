@@ -1,4 +1,5 @@
 import type { Component } from 'solid-js'
+import Rules from './Rules'
 
 interface LobbyProps {
   chooseLocal: () => void
@@ -7,6 +8,7 @@ interface LobbyProps {
 const Lobby: Component<LobbyProps> = ({ chooseLocal }) => {
   return (
     <div class="flex flex-grow flex-col gap-y-3 items-center justify-center w-full h-screen">
+      <Rules />
       <button
         class="max-w-max bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
         onClick={chooseLocal}
