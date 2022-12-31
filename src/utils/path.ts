@@ -15,43 +15,44 @@ export class PathUtils {
       return false
     }
 
-    const blockedPlayers = players
-      .map((player, index) => {
-        let goalPositions: Position[]
-        if (index === 0) {
-          goalPositions = Array(BoardUtils.BOARD_SIZE)
-            .fill(null)
-            .map((_, index) => {
-              return { x: BoardUtils.BOARD_SIZE - 1, y: index }
-            })
-        } else if (index === 1) {
-          goalPositions = Array(BoardUtils.BOARD_SIZE)
-            .fill(null)
-            .map((_, index) => {
-              return { x: 0, y: index }
-            })
-        } else if (index === 2) {
-          goalPositions = Array(BoardUtils.BOARD_SIZE)
-            .fill(null)
-            .map((_, index) => {
-              return { x: index, y: BoardUtils.BOARD_SIZE - 1 }
-            })
-        } else {
-          goalPositions = Array(BoardUtils.BOARD_SIZE)
-            .fill(null)
-            .map((_, index) => {
-              return { x: index, y: 0 }
-            })
-        }
-        return PathUtils.blocksOnlyRemainingPathForSinglePlayer(
-          newWall,
-          player,
-          goalPositions,
-          walls
-        )
-      })
-      .filter((doesBlock) => doesBlock)
-    return blockedPlayers.length > 0
+    for (const [index, player] of players.entries()) {
+      let goalPositions: Position[]
+      if (index === 0) {
+        goalPositions = Array(BoardUtils.BOARD_SIZE)
+          .fill(null)
+          .map((_, index) => {
+            return { x: BoardUtils.BOARD_SIZE - 1, y: index }
+          })
+      } else if (index === 1) {
+        goalPositions = Array(BoardUtils.BOARD_SIZE)
+          .fill(null)
+          .map((_, index) => {
+            return { x: 0, y: index }
+          })
+      } else if (index === 2) {
+        goalPositions = Array(BoardUtils.BOARD_SIZE)
+          .fill(null)
+          .map((_, index) => {
+            return { x: index, y: BoardUtils.BOARD_SIZE - 1 }
+          })
+      } else {
+        goalPositions = Array(BoardUtils.BOARD_SIZE)
+          .fill(null)
+          .map((_, index) => {
+            return { x: index, y: 0 }
+          })
+      }
+      const isBlocked = PathUtils.blocksOnlyRemainingPathForSinglePlayer(
+        newWall,
+        player,
+        goalPositions,
+        walls
+      )
+      if (isBlocked) {
+        return true
+      }
+    }
+    return false
   }
 
   static blocksOnlyRemainingPathForSinglePlayer(
@@ -74,6 +75,9 @@ export class PathUtils {
     walls: Wall[],
     visitedSquares: Position[]
   ): boolean {
+    if (visitedSquares.length > BoardUtils.BOARD_SIZE * BoardUtils.BOARD_SIZE) {
+      return true
+    }
     const matchingGoal = goalSquares.filter(
       (p) => position.x === p.x && position.y === p.y
     )
