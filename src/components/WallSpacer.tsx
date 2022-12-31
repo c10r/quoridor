@@ -13,6 +13,13 @@ const WallSpacer: Component<WallSpacerModel> = (props) => {
     return false
   })
 
+  function isIllegalWall(): boolean {
+    if (!props.illegalWall) {
+      return false
+    }
+    return WallSpacerUtils.hasWall(props, props.illegalWall)
+  }
+
   function getTemporaryWallColor(): string {
     const player = props.players[props.turn % props.players.length]
     return PlayerUtils.getTailwindColor(player.color)
@@ -21,7 +28,9 @@ const WallSpacer: Component<WallSpacerModel> = (props) => {
   return (
     <div
       class={`flex w-2 h-2 ${
-        isPermanentWall() || WallSpacerUtils.isJointWallSpacer(props)
+        isIllegalWall()
+          ? 'bg-red-500'
+          : isPermanentWall() || WallSpacerUtils.isJointWallSpacer(props)
           ? 'bg-stone-400'
           : WallSpacerUtils.hasWall(props, props.temporaryWall)
           ? getTemporaryWallColor()

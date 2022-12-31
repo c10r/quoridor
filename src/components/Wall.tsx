@@ -5,10 +5,11 @@ import { Wall as WallModel } from '../models/wall'
 import { PlayerUtils } from '../utils/player'
 
 interface WallProps {
-  position: Position
+  illegalWall: WallModel | undefined
   isVertical: boolean
-  temporaryWall: WallModel | undefined
   players: Player[]
+  position: Position
+  temporaryWall: WallModel | undefined
   turn: number
   walls: WallModel[]
 }
@@ -88,6 +89,30 @@ const Wall: Component<WallProps> = (props) => {
     return false
   })
 
+  function isIllegalWall(): boolean {
+    if (!props.illegalWall) {
+      return false
+    }
+    if (props.isVertical !== props.illegalWall.isVertical) {
+      return false
+    }
+    const isIllegalVerticalWall =
+      props.isVertical &&
+      props.position.y === props.illegalWall.y &&
+      props.position.x === props.illegalWall.x - 1
+    const isIllegalHorizontalWall =
+      !props.isVertical &&
+      props.position.x === props.illegalWall.x &&
+      props.position.y === props.illegalWall.y - 1
+    const isExactIllegalWall =
+      props.illegalWall.x === props.position.x &&
+      props.illegalWall.y === props.position.y &&
+      props.illegalWall.isVertical === props.isVertical
+    return (
+      isExactIllegalWall || isIllegalHorizontalWall || isIllegalVerticalWall
+    )
+  }
+
   function getTemporaryWallColor(): string {
     const player = props.players[props.turn % props.players.length]
     return PlayerUtils.getTailwindColor(player.color)
@@ -96,7 +121,9 @@ const Wall: Component<WallProps> = (props) => {
   return (
     <div
       class={`flex ${props.isVertical ? 'flex-col w-2 h-10' : 'w-10 h-2'} ${
-        isPermanentWall()
+        isIllegalWall()
+          ? 'bg-red-500'
+          : isPermanentWall()
           ? 'bg-stone-400'
           : hasTemporaryWall()
           ? getTemporaryWallColor()

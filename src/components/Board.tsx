@@ -41,6 +41,8 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
   const [winningPlayerName, setWinningPlayerName] = createSignal<
     string | undefined
   >()
+  const [error, setError] = createSignal<string | undefined>()
+  const [illegalWall, setIllegalWall] = createSignal<WallModel | undefined>()
 
   function updateTemporaryWall(wall: WallModel | undefined) {
     if (wall === undefined) {
@@ -80,6 +82,8 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
           return new Array(BoardUtils.BOARD_SIZE).fill(row === 0)
         })
     )
+    setIllegalWall(undefined)
+    setError(undefined)
     setIsGameOver(false)
   }
 
@@ -117,6 +121,8 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
         setWinningPlayerName(players()[turn() % players().length].name)
       }
     }
+    setError(undefined)
+    setIllegalWall(undefined)
     setTurn(turn() + 1)
     updateEligibility()
   }
@@ -145,6 +151,12 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
         verticalIntersectionSquares()
       )
     ) {
+      setError('Other walls prevent this wall from being placed here.')
+      setIllegalWall({
+        isVertical,
+        x: normalizedPosition.x,
+        y: normalizedPosition.y,
+      })
       return
     }
 
@@ -155,6 +167,12 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
         walls()
       )
     ) {
+      setError('This wall blocks the only legal path for a player.')
+      setIllegalWall({
+        isVertical,
+        x: normalizedPosition.x,
+        y: normalizedPosition.y,
+      })
       return
     }
 
@@ -173,12 +191,17 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
     const newPlayers = JSON.parse(JSON.stringify(players()))
     newPlayers[turn() % players().length].walls -= 1
     setPlayers(newPlayers)
+    setError(undefined)
+    setIllegalWall(undefined)
     setTurn(turn() + 1)
     updateEligibility()
   }
 
   return (
     <div class="flex flex-col items-center justify-around h-screen w-screen">
+      {!isGameOver() && error() !== undefined && (
+        <h2 class="text-lg font-semibold text-red-600">{error()}</h2>
+      )}
       {isGameOver() && (
         <div class="flex flex-col items-center justify-center">
           <h1>{winningPlayerName()} wins!</h1>
@@ -249,6 +272,7 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                                   }
                                 >
                                   <Wall
+                                    illegalWall={illegalWall()}
                                     isVertical={true}
                                     players={players()}
                                     position={{ x: row(), y: col() }}
@@ -281,6 +305,7 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                                 }
                               >
                                 <Wall
+                                  illegalWall={illegalWall()}
                                   isVertical={false}
                                   players={players()}
                                   position={{ x: row(), y: col() }}
@@ -291,6 +316,7 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                               </div>
                               {col() < BoardUtils.BOARD_SIZE - 1 && (
                                 <WallSpacer
+                                  illegalWall={illegalWall()}
                                   players={players()}
                                   position={{ x: row(), y: col() }}
                                   temporaryWall={temporaryWall()}
