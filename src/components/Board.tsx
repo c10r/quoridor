@@ -226,20 +226,22 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
         <h2 class="text-lg font-semibold text-red-600">{error()}</h2>
       )}
       {isGameOver() && (
-        <div class="flex flex-col items-center justify-center">
+        <div class="flex flex-col gap-y-2 items-center justify-center">
           <h1>{winningPlayerName()} wins!</h1>
-          <button
-            class="max-w-max bg-red-500 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded"
-            onClick={gameOver}
-          >
-            Return to Lobby
-          </button>
-          <button
-            class="max-w-max bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
-            onClick={rematch}
-          >
-            Rematch
-          </button>
+          <div class="flex gap-x-4">
+            <button
+              class="max-w-max bg-red-500 hover:bg-red-700 text-white font-semibold py-1 px-2 rounded"
+              onClick={gameOver}
+            >
+              Return to Lobby
+            </button>
+            <button
+              class="max-w-max bg-blue-500 hover:bg-blue-700 text-white font-semibold py-1 px-2 rounded"
+              onClick={rematch}
+            >
+              Rematch
+            </button>
+          </div>
         </div>
       )}
       {!isGameOver() && (
