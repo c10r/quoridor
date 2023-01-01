@@ -23,16 +23,16 @@ export class BoardUtils {
   static isGameOver(turn: number, players: Player[]): boolean {
     const playerTurn = turn % players.length
     if (playerTurn === 0) {
-      return players[0].position.x === BoardUtils.BOARD_SIZE - 1
+      return players[0].position?.x === BoardUtils.BOARD_SIZE - 1
     }
     if (playerTurn === 1) {
-      return players[1].position.x === 0
+      return players[1].position?.x === 0
     }
     if (playerTurn === 2) {
-      return players[2].position.y === BoardUtils.BOARD_SIZE - 1
+      return players[2].position?.y === BoardUtils.BOARD_SIZE - 1
     }
     if (playerTurn === 3) {
-      return players[3].position.y === 0
+      return players[3].position?.y === 0
     }
     return false
   }
@@ -57,20 +57,20 @@ export class BoardUtils {
           if (turn === 2) {
             newEligibility[row][column] =
               column === 0 &&
-              (players[0].position.x !== row ||
-                players[0].position.y !== column) &&
-              (players[1].position.x !== row ||
-                players[1].position.y !== column)
+              (players[0].position?.x !== row ||
+                players[0].position?.y !== column) &&
+              (players[1].position?.x !== row ||
+                players[1].position?.y !== column)
           }
           if (turn === 3) {
             newEligibility[row][column] =
               column === BoardUtils.BOARD_SIZE - 1 &&
-              (players[0].position.x !== row ||
-                players[0].position.y !== column) &&
-              (players[1].position.x !== row ||
-                players[1].position.y !== column) &&
-              (players[2].position.x !== row ||
-                players[2].position.y !== column)
+              (players[0].position?.x !== row ||
+                players[0].position?.y !== column) &&
+              (players[1].position?.x !== row ||
+                players[1].position?.y !== column) &&
+              (players[2].position?.x !== row ||
+                players[2].position?.y !== column)
           }
         }
       }
@@ -85,7 +85,7 @@ export class BoardUtils {
 
       // Then exclude the current positions of all players and walls blocking paths
       const playerPositionsSet = new Set(
-        players.map((player) => `${player.position.x}${player.position.y}`)
+        players.map((player) => `${player.position?.x}${player.position?.y}`)
       )
       const { x, y } = players[turn % players.length].position!
       // Above
@@ -180,13 +180,13 @@ export class BoardUtils {
     verticalIntersectionSquares: Record<number, Set<number>>
   ): Record<'horizontal' | 'vertical', Record<number, Set<number>>> {
     // Deep clone objects tracking illegal horizontal / vertical squares
-    let newHorizontal = {}
-    let newVertical = {}
+    let newHorizontal: Record<number, Set<number>> = {}
+    let newVertical: Record<number, Set<number>> = {}
     for (const [key, value] of Object.entries(horizontalIntersectionSquares)) {
-      newHorizontal[key] = new Set([...value])
+      newHorizontal[Number.parseInt(key)] = new Set([...value])
     }
     for (const [key, value] of Object.entries(verticalIntersectionSquares)) {
-      newVertical[key] = new Set([...value])
+      newVertical[Number.parseInt(key)] = new Set([...value])
     }
 
     // Add new entires for conflicts
@@ -196,16 +196,22 @@ export class BoardUtils {
     )
     for (const [key, value] of Object.entries(newIllegalSquares.horizontal)) {
       if (key in newHorizontal) {
-        newHorizontal[key] = new Set([...value, ...newHorizontal[key]])
+        newHorizontal[Number.parseInt(key)] = new Set([
+          ...value,
+          ...newHorizontal[Number.parseInt(key)],
+        ])
       } else {
-        newHorizontal[key] = new Set([...value])
+        newHorizontal[Number.parseInt(key)] = new Set([...value])
       }
     }
     for (const [key, value] of Object.entries(newIllegalSquares.vertical)) {
       if (key in newVertical) {
-        newVertical[key] = new Set([...value, ...newVertical[key]])
+        newVertical[Number.parseInt(key)] = new Set([
+          ...value,
+          ...newVertical[Number.parseInt(key)],
+        ])
       } else {
-        newVertical[key] = new Set([...value])
+        newVertical[Number.parseInt(key)] = new Set([...value])
       }
     }
 

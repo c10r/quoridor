@@ -52,16 +52,16 @@ export class PathUtils {
   ): number {
     while (queue.length > 0) {
       const position = queue.shift()
-      visitedSquares.add(`${position.x},${position.y}`)
+      visitedSquares.add(`${position?.x},${position?.y}`)
       const matchingGoal = goalSquares.filter(
-        (p) => position.x === p.x && position.y === p.y
+        (p) => position?.x === p.x && position?.y === p.y
       )
       if (matchingGoal.length > 0) {
         return visitedSquares.size
       }
 
       const unblockedAdjacentSquares = PathUtils.getAllUnblockedAdjacentSquares(
-        position,
+        position!,
         walls
       )
       if (unblockedAdjacentSquares.length === 0) {
@@ -117,7 +117,9 @@ export class PathUtils {
 
     return allAdjacentSquares
       .filter((x) => x !== undefined)
-      .filter((x) => !PathUtils.isAdjacentSquareBlocked(position, x, walls))
+      .filter(
+        (x) => !PathUtils.isAdjacentSquareBlocked(position, x, walls)
+      ) as Position[]
   }
 
   static getSquareAbove(position: Position): Position | undefined {

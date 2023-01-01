@@ -34,12 +34,12 @@ export class ComputerUtils {
     walls: Wall[]
   ): Position {
     const adjacentSquares = PathUtils.getAllUnblockedAdjacentSquares(
-      players[playerIndex].position,
+      players[playerIndex].position!,
       walls
     )
 
     const scores = adjacentSquares.map((square) => {
-      const newPositions = players.map((player) => player.position)
+      const newPositions = players.map((player) => player.position!)
       newPositions[playerIndex] = square
       return ComputerUtils.evaluateBoard(playerIndex, newPositions, walls)
     })

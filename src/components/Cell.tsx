@@ -38,7 +38,8 @@ const Cell: Component<CellProps> = (oldProps) => {
       .filter((p) => p.position !== undefined)
       .find(
         (p) =>
-          p.position.x === props.position.x && p.position.y === props.position.y
+          p.position?.x === props.position.x &&
+          p.position?.y === props.position.y
       )
   }
 
@@ -58,7 +59,7 @@ const Cell: Component<CellProps> = (oldProps) => {
       {!props.isEligible && getPlayerOnCell() && (
         <div
           class={`w-3 h-3 rounded ${PlayerUtils.getTailwindColor(
-            getPlayerOnCell().color
+            getPlayerOnCell()!.color
           )}`}
         />
       )}

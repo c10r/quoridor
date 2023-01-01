@@ -45,7 +45,7 @@ const Game: Component = () => {
         <ConfigureLocalPlayers startGame={startGame} />
       </Match>
       <Match when={phase() === GamePhase.GAME_IN_PROGRESS}>
-        <Board gameOver={gameOver} playersProp={players()} />
+        <Board gameOver={gameOver} playersProp={players()!} />
       </Match>
     </Switch>
   )
