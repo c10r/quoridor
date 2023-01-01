@@ -221,7 +221,7 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
   })
 
   return (
-    <div class="flex flex-col items-center justify-around h-screen w-screen">
+    <div class="flex flex-col items-center justify-around h-full w-full">
       {!isGameOver() && error() !== undefined && (
         <h2 class="text-lg font-semibold text-red-600">{error()}</h2>
       )}
@@ -358,7 +358,6 @@ const Board: Component<BoardProps> = ({ gameOver, playersProp }) => {
                 )
               }}
             </For>
-            {}
           </div>
           {players().length > 3 && <Player player={players()[3]} />}
         </div>
