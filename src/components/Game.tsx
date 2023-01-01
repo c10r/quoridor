@@ -9,7 +9,6 @@ enum GamePhase {
   CHOOSE_GAME_TYPE,
   CONFIGURE_PLAYERS,
   GAME_IN_PROGRESS,
-  GAME_OVER,
 }
 
 enum GameType {
@@ -47,9 +46,6 @@ const Game: Component = () => {
       </Match>
       <Match when={phase() === GamePhase.GAME_IN_PROGRESS}>
         <Board gameOver={gameOver} playersProp={players()} />
-      </Match>
-      <Match when={phase() === GamePhase.GAME_OVER}>
-        <h1>Game Over</h1>
       </Match>
     </Switch>
   )
