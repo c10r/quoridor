@@ -14,7 +14,6 @@ enum GamePhase {
 
 enum GameType {
   LOCAL,
-  AI,
   ONLINE,
 }
 
