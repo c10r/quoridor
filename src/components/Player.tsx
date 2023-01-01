@@ -6,15 +6,17 @@ interface PlayerProps {
   player: PlayerModel
 }
 
-const Player: Component<PlayerProps> = ({ player }: PlayerProps) => {
+const Player: Component<PlayerProps> = (props: PlayerProps) => {
   return (
     <div class="flex h-full gap-x-2 items-center justify-center px-2.5 py-1">
-      {player.name}
+      {props.player.name}
       <div class="flex h-full gap-x-0.5 items-center justify-center">
-        <For each={new Array(player.walls)}>
+        <For each={new Array(props.player.walls)}>
           {() => (
             <div
-              class={`w-1 h-4 ${PlayerUtils.getTailwindColor(player.color)}`}
+              class={`w-1 h-4 ${PlayerUtils.getTailwindColor(
+                props.player.color
+              )}`}
             />
           )}
         </For>
