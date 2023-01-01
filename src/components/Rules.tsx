@@ -3,6 +3,7 @@ import type { Component } from 'solid-js'
 const Rules: Component = () => {
   return (
     <div class="flex flex-col justify-center items-center w-full">
+      <h1>Play Quoridor</h1>
       <h2 class="text-lg font-semibold">Rules:</h2>
       <p>1. Cross to the opposite side before your opponents to win</p>
       <p>2. Place walls to make your opponent's path to the goal longer</p>
