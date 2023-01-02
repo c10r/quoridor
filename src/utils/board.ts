@@ -120,6 +120,60 @@ export class BoardUtils {
       ) {
         newEligibility[x][y + 1] = true
       }
+
+      // Allow jumping
+      // Above
+      if (
+        x > 1 &&
+        playerPositionsSet.has(`${x - 1}${y}`) &&
+        !playerPositionsSet.has(`${x - 2}${y}`) &&
+        !PathUtils.isAdjacentSquareBlocked(
+          { x: x - 1, y },
+          { x: x - 2, y },
+          walls
+        )
+      ) {
+        newEligibility[x - 2][y] = true
+      }
+      // Below
+      if (
+        x < BoardUtils.BOARD_SIZE - 2 &&
+        playerPositionsSet.has(`${x + 1}${y}`) &&
+        !playerPositionsSet.has(`${x + 2}${y}`) &&
+        !PathUtils.isAdjacentSquareBlocked(
+          { x: x + 1, y },
+          { x: x + 2, y },
+          walls
+        )
+      ) {
+        newEligibility[x + 2][y] = true
+      }
+      // Left
+      if (
+        y > 1 &&
+        playerPositionsSet.has(`${x}${y - 1}`) &&
+        !playerPositionsSet.has(`${x}${y - 2}`) &&
+        !PathUtils.isAdjacentSquareBlocked(
+          { x, y: y - 1 },
+          { x, y: y - 2 },
+          walls
+        )
+      ) {
+        newEligibility[x][y - 2] = true
+      }
+      // Right
+      if (
+        y < BoardUtils.BOARD_SIZE - 2 &&
+        playerPositionsSet.has(`${x}${y + 1}`) &&
+        !playerPositionsSet.has(`${x}${y + 2}`) &&
+        !PathUtils.isAdjacentSquareBlocked(
+          { x, y: y + 1 },
+          { x, y: y + 2 },
+          walls
+        )
+      ) {
+        newEligibility[x][y + 2] = true
+      }
     }
     return newEligibility
   }
