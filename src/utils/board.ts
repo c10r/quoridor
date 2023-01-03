@@ -178,6 +178,199 @@ export class BoardUtils {
       ) {
         newEligibility[x][y + 2] = true
       }
+
+      // Diagonals
+      // If the square you'd jump to is a wall or blocked by a wall,
+      // you can jump diagonally to avoid it
+      // N  | NE |
+      // me | x  | blocked
+      // S  | SE |
+
+      // Alternatively, if you can't jump over the opponent because the square
+      // after would be off the board, you can jump diagonally
+      // N   | NE  |
+      // me  | x   | <no square here>
+      const topIsBlocked =
+        x > 1 &&
+        playerPositionsSet.has(`${x - 1}${y}`) &&
+        !PathUtils.isAdjacentSquareBlocked({ x, y }, { x: x - 1, y }, walls) &&
+        (PathUtils.isAdjacentSquareBlocked(
+          { x: x - 1, y },
+          { x: x - 2, y },
+          walls
+        ) ||
+          playerPositionsSet.has(`${x - 2}${y}`))
+      const rightIsBlocked =
+        y < BoardUtils.BOARD_SIZE - 1 &&
+        playerPositionsSet.has(`${x}${y + 1}`) &&
+        !PathUtils.isAdjacentSquareBlocked({ x, y }, { x, y: y + 1 }, walls) &&
+        (PathUtils.isAdjacentSquareBlocked(
+          { x, y: y + 1 },
+          { x, y: y + 2 },
+          walls
+        ) ||
+          playerPositionsSet.has(`${x}${y + 2}`))
+      const bottomIsBlocked =
+        x < BoardUtils.BOARD_SIZE - 1 &&
+        playerPositionsSet.has(`${x + 1}${y}`) &&
+        !PathUtils.isAdjacentSquareBlocked({ x, y }, { x: x + 1, y }, walls) &&
+        (PathUtils.isAdjacentSquareBlocked(
+          { x: x + 1, y },
+          { x: x + 2, y },
+          walls
+        ) ||
+          playerPositionsSet.has(`${x + 2}${y}`))
+      const leftIsBlocked =
+        y > 1 &&
+        playerPositionsSet.has(`${x}${y - 1}`) &&
+        !PathUtils.isAdjacentSquareBlocked({ x, y }, { x, y: y - 1 }, walls) &&
+        (PathUtils.isAdjacentSquareBlocked(
+          { x, y: y - 1 },
+          { x, y: y - 2 },
+          walls
+        ) ||
+          playerPositionsSet.has(`${x}${y - 2}`))
+      const topIsEdge =
+        x === 1 &&
+        playerPositionsSet.has(`${x - 1}${y}`) &&
+        !PathUtils.isAdjacentSquareBlocked({ x, y }, { x: x - 1, y }, walls)
+      const rightIsEdge =
+        y === BoardUtils.BOARD_SIZE - 1 &&
+        playerPositionsSet.has(`${x}${y + 1}`) &&
+        !PathUtils.isAdjacentSquareBlocked({ x, y }, { x, y: y + 1 }, walls)
+      const bottomIsEdge =
+        x === BoardUtils.BOARD_SIZE - 1 &&
+        playerPositionsSet.has(`${x + 1}${y}`) &&
+        !PathUtils.isAdjacentSquareBlocked({ x, y }, { x: x + 1, y }, walls)
+      const leftIsEdge =
+        y === 1 &&
+        playerPositionsSet.has(`${x}${y - 1}`) &&
+        !PathUtils.isAdjacentSquareBlocked({ x, y }, { x, y: y - 1 }, walls)
+
+      // Top right -> x - 1, y + 1
+      if (
+        x > 0 &&
+        y < BoardUtils.BOARD_SIZE &&
+        ((topIsBlocked &&
+          !PathUtils.isAdjacentSquareBlocked(
+            { x: x - 1, y },
+            { x: x - 1, y: y + 1 },
+            walls
+          )) ||
+          (rightIsBlocked &&
+            !PathUtils.isAdjacentSquareBlocked(
+              { x, y: y + 1 },
+              { x: x - 1, y: y + 1 },
+              walls
+            )) ||
+          (topIsEdge &&
+            !PathUtils.isAdjacentSquareBlocked(
+              { x: x - 1, y },
+              { x: x - 1, y: y + 1 },
+              walls
+            )) ||
+          (rightIsEdge &&
+            !PathUtils.isAdjacentSquareBlocked(
+              { x, y: y + 1 },
+              { x: x - 1, y: y + 1 },
+              walls
+            )))
+      ) {
+        newEligibility[x - 1][y + 1] = true
+      }
+      // Bottom right -> x + 1, y + 1
+      if (
+        x < BoardUtils.BOARD_SIZE &&
+        y < BoardUtils.BOARD_SIZE &&
+        ((bottomIsBlocked &&
+          !PathUtils.isAdjacentSquareBlocked(
+            { x: x + 1, y },
+            { x: x + 1, y: y + 1 },
+            walls
+          )) ||
+          (rightIsBlocked &&
+            !PathUtils.isAdjacentSquareBlocked(
+              { x, y: y + 1 },
+              { x: x + 1, y: y + 1 },
+              walls
+            )) ||
+          (bottomIsEdge &&
+            !PathUtils.isAdjacentSquareBlocked(
+              { x: x + 1, y },
+              { x: x + 1, y: y + 1 },
+              walls
+            )) ||
+          (rightIsEdge &&
+            !PathUtils.isAdjacentSquareBlocked(
+              { x, y: y + 1 },
+              { x: x + 1, y: y + 1 },
+              walls
+            )))
+      ) {
+        newEligibility[x + 1][y + 1] = true
+      }
+      // Top left -> x - 1, y - 1
+      if (
+        x > 0 &&
+        y > 0 &&
+        ((topIsBlocked &&
+          !PathUtils.isAdjacentSquareBlocked(
+            { x: x - 1, y },
+            { x: x - 1, y: y - 1 },
+            walls
+          )) ||
+          (leftIsBlocked &&
+            !PathUtils.isAdjacentSquareBlocked(
+              { x, y: y - 1 },
+              { x: x - 1, y: y - 1 },
+              walls
+            )) ||
+          (topIsEdge &&
+            !PathUtils.isAdjacentSquareBlocked(
+              { x: x - 1, y },
+              { x: x - 1, y: y - 1 },
+              walls
+            )) ||
+          (leftIsEdge &&
+            !PathUtils.isAdjacentSquareBlocked(
+              { x, y: y - 1 },
+              { x: x - 1, y: y - 1 },
+              walls
+            )))
+      ) {
+        newEligibility[x - 1][y - 1] = true
+      }
+      // Bottom left -> x + 1, y - 1
+      if (
+        y > 0 &&
+        x < BoardUtils.BOARD_SIZE &&
+        ((bottomIsBlocked &&
+          !PathUtils.isAdjacentSquareBlocked(
+            { x: x + 1, y },
+            { x: x + 1, y: y - 1 },
+            walls
+          )) ||
+          (leftIsBlocked &&
+            !PathUtils.isAdjacentSquareBlocked(
+              { x, y: y - 1 },
+              { x: x + 1, y: y - 1 },
+              walls
+            )) ||
+          (bottomIsEdge &&
+            !PathUtils.isAdjacentSquareBlocked(
+              { x: x + 1, y },
+              { x: x + 1, y: y - 1 },
+              walls
+            )) ||
+          (leftIsEdge &&
+            !PathUtils.isAdjacentSquareBlocked(
+              { x, y: y - 1 },
+              { x: x + 1, y: y - 1 },
+              walls
+            )))
+      ) {
+        newEligibility[x + 1][y - 1] = true
+      }
     }
     return newEligibility
   }
